@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Company, Route, Fare, PlanType
 
-# Register your models here.
+admin.site.register(Company)
+admin.site.register(Route)
+admin.site.register(Fare)
+admin.site.register(PlanType)
