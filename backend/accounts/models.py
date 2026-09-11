@@ -25,3 +25,22 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+class NotificationLog(models.Model):
+    TYPE_CHOICES = [
+        ('payment_success', 'Payment Success'),
+        ('activation', 'Subscription Activation'),
+        ('expiry_warning', 'Expiry Warning'),
+        ('fare_change', 'Fare Change'),
+        ('rollover_extension', 'Rollover Extension'),
+        ('shift_started', 'Route Shift Started'),
+        ('shift_reverted', 'Route Shift Reverted'),
+        ('shift_payment_required', 'Shift Payment Required'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_type_display()} at {self.sent_at}"
