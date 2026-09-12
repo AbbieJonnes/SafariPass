@@ -5,8 +5,6 @@ class Company(models.Model):
     name = models.CharField(max_length=100)
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=20, blank=True)
-    commission_rate = models.DecimalField(max_digits=6, decimal_places=2, default=20.00)
-
     class Meta:
         verbose_name_plural = "Companies"
 
