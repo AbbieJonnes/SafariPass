@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Payment, ValidationRecord
+from .serializers import PaymentSerializer, ValidationRecordSerializer
 
-# Create your views here.
+
+class PaymentListCreateView(generics.ListCreateAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+
+class ValidationRecordListCreateView(generics.ListCreateAPIView):
+    queryset = ValidationRecord.objects.all()
+    serializer_class = ValidationRecordSerializer
