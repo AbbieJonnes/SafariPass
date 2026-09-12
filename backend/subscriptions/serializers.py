@@ -2,7 +2,7 @@ import uuid
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Subscription
+from .models import Subscription, RouteShift
 from companies.models import Fare
 
 
@@ -32,3 +32,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             qr_token=str(uuid.uuid4()),
         )
         return subscription
+
+class RouteShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RouteShift
+        fields = '__all__'
