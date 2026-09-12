@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
-from .models import NotificationLog
+from .models import User, NotificationLog
 
 admin.site.register(User, UserAdmin)
 
