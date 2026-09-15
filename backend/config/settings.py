@@ -58,7 +58,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    }
+}
+
 DEFAULT_FROM_EMAIL = 'safaripass@example.com'
 
 MIDDLEWARE = [
