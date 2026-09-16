@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'companies',
     'subscriptions',
     'payments',
+    'django_celery_beat'
 ]
 
 REST_FRAMEWORK = {
@@ -172,3 +173,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 PLATFORM_COMMISSION_KES = 20.00
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
