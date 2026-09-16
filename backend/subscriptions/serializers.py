@@ -10,7 +10,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
-        read_only_fields = ['price_paid', 'start_date', 'expiry_date', 'qr_token', 'status', 'shift_count']
+        read_only_fields = ['passenger', 'price_paid', 'start_date', 'expiry_date', 'qr_token', 'status', 'shift_count']
 
     def create(self, validated_data):
         route = validated_data['route']
