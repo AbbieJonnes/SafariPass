@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-5rkj#pd@a@7*^=q^lea+z-=eedwfst9t5a(_byby%obj@#i@me
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -69,6 +70,7 @@ DEFAULT_FROM_EMAIL = 'safaripass@example.com'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -117,15 +119,22 @@ MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='https://example.com/a
 #     }
 # }
 
-DATABASES = { 
-    'default': { 
-        'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': config('DB_NAME'), 
-        'USER': config('DB_USER'), 
-        'PASSWORD': config('DB_PASSWORD'), 
-        'HOST': config('DB_HOST'), 
-        'PORT': config('DB_PORT'), } }
+# DATABASES = { 
+#     'default': { 
+#         'ENGINE': 'django.db.backends.postgresql', 
+#         'NAME': config('DB_NAME'), 
+#         'USER': config('DB_USER'), 
+#         'PASSWORD': config('DB_PASSWORD'), 
+#         'HOST': config('DB_HOST'), 
+#         'PORT': config('DB_PORT'), } }
 
+# DATABASES['default'] = dj_database_url.config(default=config('DATABASE_URL', default=''))
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default=f"postgresql://{config('DB_USER')}:{config('DB_PASSWORD')}@{config('DB_HOST')}:{config('DB_PORT')}/{config('DB_NAME')}"
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -180,6 +189,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 PLATFORM_COMMISSION_KES = 20.00
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
