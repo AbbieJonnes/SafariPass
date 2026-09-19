@@ -110,12 +110,6 @@ The API is organized by app, with authentication required for all endpoints exce
 - `/api/payments/` — payments, M-Pesa integration, conductor validations
 - `/api/analytics/` — revenue, active subscriptions, route popularity, boarding validation statistics
 
-## Known Limitations
-
-- M-Pesa integration is currently configured against the Safaricom sandbox environment rather than production
-- Email delivery is configured through Brevo; local development can alternatively use console-based email output for testing
-- The React frontend is not yet fully built out
-
 ## Author
 
 Abigael Mwangi
