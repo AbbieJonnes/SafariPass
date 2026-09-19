@@ -36,6 +36,26 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        requested_role = request.data.get('role', 'passenger')
+
+        if requested_role == 'passenger':
+            pass
+        elif requested_role == 'conductor':
+            if not request.user.is_authenticated or request.user.role != 'company_admin':
+                return Response(
+                    {'error': 'Only a company admin can register a conductor.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        elif requested_role in ['company_admin', 'super_admin']:
+            if not request.user.is_authenticated or request.user.role != 'super_admin':
+                return Response(
+                    {'error': 'Only a super admin can register this role.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        return super().create(request, *args, **kwargs)
+
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
