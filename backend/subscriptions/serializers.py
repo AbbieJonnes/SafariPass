@@ -33,7 +33,33 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         )
         return subscription
 
+from django.core.mail import send_mail
+from django.conf import settings
+
+
 class RouteShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteShift
         fields = '__all__'
+
+    def create(self, validated_data):
+        shift = RouteShift.objects.create(**validated_data)
+
+        passenger = shift.subscription.passenger
+        if passenger.email:
+            send_mail(
+                subject="Route Shift Confirmed — SafariPass",
+                message=(
+                    f"Hi {passenger.username},\n\n"
+                    f"Your subscription has been temporarily shifted from "
+                    f"{shift.original_route.origin} → {shift.original_route.destination} "
+                    f"to {shift.temporary_route.origin} → {shift.temporary_route.destination}.\n\n"
+                    f"This shift is active from {shift.starts_at.strftime('%d %b %Y, %I:%M %p')} "
+                    f"to {shift.ends_at.strftime('%d %b %Y, %I:%M %p')}.\n\n"
+                    f"After that time, your pass will automatically return to your original route.\n\n"
+                    f"— SafariPass"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[passenger.email],
+            )
+        return shift
