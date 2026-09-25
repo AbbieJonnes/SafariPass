@@ -11,15 +11,17 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
-
 class Route(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='routes')
     origin = models.CharField(max_length=100)
     destination = models.CharField(max_length=100)
+    origin_lat = models.FloatField(null=True, blank=True)
+    origin_lng = models.FloatField(null=True, blank=True)
+    destination_lat = models.FloatField(null=True, blank=True)
+    destination_lng = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.origin} → {self.destination} ({self.company.name})"
-
 
 class Fare(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='fares')
