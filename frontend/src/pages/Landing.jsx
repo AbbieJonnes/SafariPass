@@ -201,7 +201,7 @@ function Landing() {
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-6 text-center text-sm text-gray-400">
-          © {new Date().getFullYear()} SafariPass. All rights reserved.
+          &copy; {new Date().getFullYear()} SafariPass. All rights reserved.
         </div>
       </footer>
     </div>
