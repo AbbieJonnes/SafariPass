@@ -177,11 +177,11 @@ function Landing() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faEnvelope} className="text-accent" />
-                support@safaripass.co.ke
+                abigaelmwangi534@gmail.com 
               </li>
               <li className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faPhone} className="text-accent" />
-                +254 700 000 000
+                +254 720 912 466
               </li>
               <li className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faLocationDot} className="text-accent" />
