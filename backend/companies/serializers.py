@@ -3,7 +3,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework import serializers
 from .models import Company, Route, Fare, PlanType
-
+import requests
+from django.conf import settings
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +16,37 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = '__all__'
+        read_only_fields = ['origin_lat', 'origin_lng', 'destination_lat', 'destination_lng']
 
+    def geocode(self, place_name):
+        url = "https://api.geoapify.com/v1/geocode/search"
+        params = {
+            'text': f"{place_name}, Kenya",
+            'apiKey': settings.GEOAPIFY_API_KEY,
+            'limit': 1,
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        features = data.get('features', [])
+        if features:
+            coords = features[0]['geometry']['coordinates']
+            return coords[1], coords[0]
+        return None, None
+
+    def create(self, validated_data):
+        route = Route.objects.create(**validated_data)
+
+        origin_lat, origin_lng = self.geocode(validated_data['origin'])
+        destination_lat, destination_lng = self.geocode(validated_data['destination'])
+
+        route.origin_lat = origin_lat
+        route.origin_lng = origin_lng
+        route.destination_lat = destination_lat
+        route.destination_lng = destination_lng
+        route.save()
+
+        return route
 
 class FareSerializer(serializers.ModelSerializer):
     class Meta:
