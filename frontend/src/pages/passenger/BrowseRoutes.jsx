@@ -183,7 +183,17 @@ const handleSubscribe = () => {
                     </button>
                   ))}
                 </div>
-
+<div>
+  <label className="block text-sm font-medium text-textdark mb-1">M-Pesa Phone Number</label>
+  <input
+    type="text"
+    value={phoneNumber}
+    onChange={(e) => setPhoneNumber(e.target.value)}
+    placeholder="2547XXXXXXXX"
+    required
+    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary"
+  />
+</div>
                 <button
                   onClick={handleSubscribe}
                   disabled={!selectedPlan || subscribing}
