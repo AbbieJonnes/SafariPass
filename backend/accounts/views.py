@@ -10,6 +10,11 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework.permissions import IsAuthenticated
+from .serializers import ProfileSerializer
+from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 from .models import User, NotificationLog
 from .serializers import (
     UserSerializer,
@@ -183,3 +188,12 @@ class PasswordResetConfirmView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'detail': 'Password reset successful. You can now log in.'})
+
+
+class ProfileView(RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_object(self):
+        return self.request.user
