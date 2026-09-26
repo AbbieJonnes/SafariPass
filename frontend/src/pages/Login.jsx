@@ -11,6 +11,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowNotice, setSlowNotice] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -18,6 +19,9 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setSlowNotice(false);
+
+    const slowTimer = setTimeout(() => setSlowNotice(true), 4000);
 
     try {
       const response = await axiosInstance.post('/accounts/login/', { username, password });
@@ -32,13 +36,14 @@ function Login() {
     } catch (err) {
       setError('Invalid username or password.');
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setSlowNotice(false);
     }
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
           src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80"
@@ -61,7 +66,6 @@ function Login() {
         </div>
       </div>
 
-      {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 font-bold text-2xl text-primary mb-8 justify-center">
@@ -75,6 +79,11 @@ function Login() {
           {error && (
             <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-4">
               {error}
+            </div>
+          )}
+          {slowNotice && (
+            <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3 mb-4">
+              Our server is waking up from idle — this can take up to a minute on the first request. Thanks for your patience.
             </div>
           )}
 
