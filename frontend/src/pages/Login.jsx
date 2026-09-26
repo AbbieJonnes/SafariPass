@@ -41,7 +41,7 @@ function Login() {
       {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
-          src="https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=1200&q=80"
+          src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80"
           alt="Commuters"
           className="absolute inset-0 w-full h-full object-cover"
         />
