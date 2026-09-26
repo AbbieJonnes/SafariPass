@@ -23,7 +23,7 @@ function ConductorDashboard() {
               to={card.to}
               className="bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition group"
             >
-              <div className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
+              <div className={`${card.color} w-12 h-12 rounded-xl flex weitems-center justify-center mb-4`}>
                 <FontAwesomeIcon icon={card.icon} className="text-white text-xl" />
               </div>
               <h3 className="font-semibold text-textdark mb-1">{card.title}</h3>
