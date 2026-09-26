@@ -50,20 +50,36 @@ function BrowseRoutes() {
       .finally(() => setLoading(false));
   };
 
-  const handleSubscribe = () => {
-    setSubscribing(true);
-    setError('');
-    axiosInstance.post('/subscriptions/', {
-      route: selectedRoute.id,
-      plan_type: selectedPlan.id,
-    })
-      .then(() => {
-        navigate('/passenger/dashboard');
-      })
-      .catch(() => setError('Subscription failed. Please try again.'))
-      .finally(() => setSubscribing(false));
-  };
+ const [phoneNumber, setPhoneNumber] = useState('');
+const [paymentPending, setPaymentPending] = useState(false);
 
+const handleSubscribe = () => {
+  setSubscribing(true);
+  setError('');
+
+  axiosInstance.post('/subscriptions/', {
+    route: selectedRoute.id,
+    plan_type: selectedPlan.id,
+  })
+    .then((res) => {
+      const subscriptionId = res.data.id;
+      setPaymentPending(true);
+      return axiosInstance.post('/payments/mpesa/initiate/', {
+        subscription: subscriptionId,
+        phone_number: phoneNumber,
+      });
+    })
+    .then(() => {
+      setError('');
+      alert('Check your phone to complete the M-Pesa payment (Lipa Na M-Pesa prompt).');
+      navigate('/passenger/dashboard');
+    })
+    .catch(() => setError('Subscription or payment failed. Please try again.'))
+    .finally(() => {
+      setSubscribing(false);
+      setPaymentPending(false);
+    });
+};
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
