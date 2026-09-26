@@ -70,6 +70,7 @@ DEFAULT_FROM_EMAIL = 'safaripass@example.com'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -199,3 +200,8 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CRON_SECRET = config('CRON_SECRET', default='change-this-secret')
 
 GEOAPIFY_API_KEY = config('GEOAPIFY_API_KEY', default='')
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
