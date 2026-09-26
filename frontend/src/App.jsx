@@ -18,7 +18,17 @@ import ScanPass from './pages/conductor/ScanPass';
 import ValidationHistory from './pages/conductor/ValidationHistory';
 
 import CompanyAdminDashboard from './pages/admin/CompanyAdminDashboard';
+import ManageRoutes from './pages/admin/ManageRoutes';
+import ManageFares from './pages/admin/ManageFares';
+import ManagePlanTypes from './pages/admin/ManagePlanTypes';
+import AddConductor from './pages/admin/AddConductor';
+import ViewSubscriptions from './pages/admin/ViewSubscriptions';
+import AdminAnalytics from './pages/admin/Analytics';
+
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
+import ManageCompanies from './pages/superadmin/ManageCompanies';
+import ManageUsers from './pages/superadmin/ManageUsers';
+import AddCompanyAdmin from './pages/superadmin/AddCompanyAdmin';
 
 function App() {
   return (
@@ -42,7 +52,18 @@ function App() {
       <Route path="/conductor/history" element={<ProtectedRoute allowedRoles={['conductor']}><ValidationHistory /></ProtectedRoute>} />
 
       <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['company_admin']}><CompanyAdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/routes" element={<ProtectedRoute allowedRoles={['company_admin']}><ManageRoutes /></ProtectedRoute>} />
+      <Route path="/admin/fares" element={<ProtectedRoute allowedRoles={['company_admin']}><ManageFares /></ProtectedRoute>} />
+      <Route path="/admin/plan-types" element={<ProtectedRoute allowedRoles={['company_admin']}><ManagePlanTypes /></ProtectedRoute>} />
+      <Route path="/admin/add-conductor" element={<ProtectedRoute allowedRoles={['company_admin']}><AddConductor /></ProtectedRoute>} />
+      <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={['company_admin']}><ViewSubscriptions /></ProtectedRoute>} />
+      <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['company_admin']}><AdminAnalytics title="Company Analytics" subtitle="Performance for your company." /></ProtectedRoute>} />
+
       <Route path="/super-admin/dashboard" element={<ProtectedRoute allowedRoles={['super_admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+      <Route path="/super-admin/companies" element={<ProtectedRoute allowedRoles={['super_admin']}><ManageCompanies /></ProtectedRoute>} />
+      <Route path="/super-admin/users" element={<ProtectedRoute allowedRoles={['super_admin']}><ManageUsers /></ProtectedRoute>} />
+      <Route path="/super-admin/add-admin" element={<ProtectedRoute allowedRoles={['super_admin']}><AddCompanyAdmin /></ProtectedRoute>} />
+      <Route path="/super-admin/analytics" element={<ProtectedRoute allowedRoles={['super_admin']}><AdminAnalytics title="Platform Analytics" subtitle="Performance across all companies." /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
