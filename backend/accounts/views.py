@@ -10,6 +10,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework import generics
+from .permissions import IsSuperAdmin, UserListSerializer
+
 from rest_framework.permissions import IsAuthenticated
 from .serializers import ProfileSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -197,3 +200,8 @@ class ProfileView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all().order_by('-id')
+    serializer_class = UserListSerializer
+    permission_classes = [IsSuperAdmin]
