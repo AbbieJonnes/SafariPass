@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 from .models import Payment, ValidationRecord
+from subscriptions.models import Subscription
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -10,31 +11,49 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class ValidationRecordSerializer(serializers.ModelSerializer):
+    qr_token = serializers.UUIDField(write_only=True)
+    route = serializers.SerializerMethodField()
+    plan_type = serializers.SerializerMethodField()
+    passenger_username = serializers.SerializerMethodField()
+
     class Meta:
         model = ValidationRecord
-        fields = '__all__'
-        read_only_fields = ['result']
+        fields = ['id', 'qr_token', 'conductor', 'scanned_at', 'result', 'route', 'plan_type', 'passenger_username']
+        read_only_fields = ['id', 'conductor', 'scanned_at', 'result']
+
+    def get_route(self, obj):
+        return f"{obj.subscription.route.origin} to {obj.subscription.route.destination}"
+
+    def get_plan_type(self, obj):
+        return f"{obj.subscription.plan_type.plan_category} ({obj.subscription.plan_type.duration})"
+
+    def get_passenger_username(self, obj):
+        return obj.subscription.passenger.username
 
     def create(self, validated_data):
-        subscription = validated_data['subscription']
-        now = timezone.now()
+        qr_token = validated_data.pop('qr_token')
+        try:
+            subscription = Subscription.objects.get(qr_token=qr_token)
+        except Subscription.DoesNotExist:
+            raise serializers.ValidationError({'qr_token': 'No subscription found for this QR code.'})
 
-        if subscription.start_date <= now <= subscription.expiry_date:
+        now = timezone.now()
+        today = now.date()
+
+        if subscription.status != 'active':
+            result = 'invalid'
+        elif subscription.expiry_date < today:
+            result = 'expired'
+        else:
             plan = subscription.plan_type
-            if plan and plan.plan_category == 'peak' and plan.peak_start_time and plan.peak_end_time:
+            if plan.plan_category == 'peak' and plan.peak_start_time and plan.peak_end_time:
                 current_time = now.time()
-                if plan.peak_start_time <= current_time <= plan.peak_end_time:
-                    result = 'active'
-                else:
-                    result = 'expired'
+                result = 'active' if plan.peak_start_time <= current_time <= plan.peak_end_time else 'invalid'
             else:
                 result = 'active'
-        else:
-            result = 'expired'
 
-        validation = ValidationRecord.objects.create(
+        return ValidationRecord.objects.create(
             subscription=subscription,
-            conductor=validated_data.get('conductor'),
+            conductor=self.context['request'].user,
             result=result,
         )
-        return validation
