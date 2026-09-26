@@ -70,3 +70,13 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'role', 'profile_picture', 'company']
         read_only_fields = ['id', 'role', 'company']
+
+class UserListSerializer(serializers.ModelSerializer):
+    company_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'company', 'company_name']
+
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
