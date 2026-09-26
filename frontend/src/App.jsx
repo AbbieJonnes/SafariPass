@@ -9,6 +9,7 @@ import PassengerDashboard from './pages/passenger/PassengerDashboard';
 import ConductorDashboard from './pages/conductor/ConductorDashboard';
 import CompanyAdminDashboard from './pages/admin/CompanyAdminDashboard';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
+import BrowseRoutes from './pages/passenger/BrowseRoutes';
 
 function App() {
   return (
@@ -52,6 +53,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+  path="/passenger/browse"
+  element={
+    <ProtectedRoute allowedRoles={['passenger']}>
+      <BrowseRoutes />
+    </ProtectedRoute>
+  }
+/>
 
       {/* Catch-all: any unmatched or malformed URL redirects home instead of a blank page */}
       <Route path="*" element={<Navigate to="/" replace />} />
