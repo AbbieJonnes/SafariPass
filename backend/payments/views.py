@@ -21,11 +21,13 @@ class ValidationRecordListCreateView(generics.ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == 'POST':
             return [IsConductor()]
-        return super().get_permissions()
+        return [IsAuthenticated()]
 
-    def perform_create(self, serializer):
-        serializer.save(conductor=self.request.user)
-
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'conductor':
+            return ValidationRecord.objects.filter(conductor=user).order_by('-scanned_at')
+        return ValidationRecord.objects.all().order_by('-scanned_at')
 
 class InitiateMpesaPaymentView(APIView):
     permission_classes = [IsAuthenticated]
