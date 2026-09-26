@@ -1,12 +1,43 @@
 import Navbar from '../../components/Navbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRoute, faTag, faLayerGroup, faUserPlus, faUsers, faChartLine, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 function CompanyAdminDashboard() {
+  const cards = [
+    { icon: faRoute, title: 'Manage Routes', desc: 'Add or edit your routes', to: '/admin/routes', color: 'bg-primary' },
+    { icon: faTag, title: 'Manage Fares', desc: 'Update pricing for routes', to: '/admin/fares', color: 'bg-secondary' },
+    { icon: faLayerGroup, title: 'Plan Types', desc: 'Full Day and Peak Hours plans', to: '/admin/plan-types', color: 'bg-accent' },
+    { icon: faUserPlus, title: 'Add Conductor', desc: 'Onboard new staff', to: '/admin/add-conductor', color: 'bg-primary' },
+    { icon: faUsers, title: 'Subscriptions', desc: 'View passenger subscriptions', to: '/admin/subscriptions', color: 'bg-secondary' },
+    { icon: faChartLine, title: 'Analytics', desc: 'Revenue and route performance', to: '/admin/analytics', color: 'bg-accent' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold text-primary mb-2">Company Admin Dashboard</h1>
-        <p className="text-gray-500">Manage your company's routes, fares, plan types, and conductors here.</p>
+        <h1 className="text-2xl font-bold text-primary mb-1">Company Admin Dashboard</h1>
+        <p className="text-gray-500 mb-8">Manage your company's routes, fares, plans, and staff.</p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cards.map((card) => (
+            <Link
+              key={card.title}
+              to={card.to}
+              className="bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition group"
+            >
+              <div className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
+                <FontAwesomeIcon icon={card.icon} className="text-white text-xl" />
+              </div>
+              <h3 className="font-semibold text-textdark mb-1">{card.title}</h3>
+              <p className="text-sm text-gray-500 mb-3">{card.desc}</p>
+              <span className="text-sm text-secondary font-medium flex items-center gap-1">
+                Open <FontAwesomeIcon icon={faArrowRight} className="text-xs group-hover:translate-x-1 transition" />
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
