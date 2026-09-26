@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: 'https://safaripass-mwts.onrender.com/api',
+  timeout: 60000,
 });
 
 axiosInstance.interceptors.request.use((config) => {
