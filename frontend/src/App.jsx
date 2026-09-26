@@ -1,9 +1,9 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import SetPassword from './pages/SetPassword';
 import ForgotPassword from './pages/ForgotPassword';
+import SetPassword from './pages/SetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import PassengerDashboard from './pages/passenger/PassengerDashboard';
 import ConductorDashboard from './pages/conductor/ConductorDashboard';
@@ -16,9 +16,9 @@ function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/set-password/:uid/:token" element={<SetPassword />} />
       <Route path="/reset-password/:uid/:token" element={<SetPassword />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route
         path="/passenger/dashboard"
@@ -52,6 +52,9 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      {/* Catch-all: any unmatched or malformed URL redirects home instead of a blank page */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
