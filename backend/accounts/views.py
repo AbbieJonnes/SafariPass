@@ -54,8 +54,45 @@ class RegisterView(generics.CreateAPIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
 
+        if response.status_code == status.HTTP_201_CREATED and requested_role in ['conductor', 'company_admin']:
+            self.send_set_password_email(request, response.data)
+
+        return response
+
+    def send_set_password_email(self, request, user_data):
+        try:
+            user = User.objects.get(id=user_data.get('id'))
+        except User.DoesNotExist:
+            return
+
+        if not user.email:
+            return
+
+        user.set_unusable_password()
+        user.save()
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        set_password_link = f"http://localhost:5173/set-password/{uid}/{token}/"
+
+        role_label = "Company Admin" if user.role == 'company_admin' else "Conductor"
+        created_by = request.user.username
+
+        send_mail(
+            subject=f"Set Up Your SafariPass {role_label} Account",
+            message=(
+                f"Hi {user.username},\n\n"
+                f"An account has been created for you on SafariPass as a {role_label}, "
+                f"by {created_by}.\n\n"
+                f"Please set your password using the link below to activate your account:\n"
+                f"{set_password_link}\n\n"
+                f"— SafariPass"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+        )
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
