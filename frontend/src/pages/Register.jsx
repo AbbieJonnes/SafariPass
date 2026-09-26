@@ -40,7 +40,8 @@ function Register() {
       {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
-          src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80"
+        //   src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80"
+        src="https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=1200&q=80"
           alt="City transit"
           className="absolute inset-0 w-full h-full object-cover"
         />
