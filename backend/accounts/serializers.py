@@ -44,19 +44,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         if password and user.email:
-            send_mail(
-                subject="Welcome to SafariPass — Your Account is Active",
-                message=(
-                    f"Hi {user.username},\n\n"
-                    f"Your SafariPass account has been created and is now active. "
-                    f"You can log in right away and start browsing companies and routes.\n\n"
-                    f"Once you subscribe to a plan, you'll receive your QR pass automatically — "
-                    f"no downloads needed, it lives right in your account.\n\n"
-                    f"Welcome aboard!\n— SafariPass"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-            )
+            try:
+                send_mail(
+                    subject="Welcome to SafariPass — Your Account is Active",
+                    message=(
+                        f"Hi {user.username},\n\n"
+                        f"Your SafariPass account has been created and is now active. "
+                        f"You can log in right away and start browsing companies and routes.\n\n"
+                        f"Once you subscribe to a plan, you'll receive your QR pass automatically — "
+                        f"no downloads needed, it lives right in your account.\n\n"
+                        f"Welcome aboard!\n— SafariPass"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
+            except Exception as e:
+                print(f"Failed to send welcome email to {user.email}: {e}")
 
         return user
 
