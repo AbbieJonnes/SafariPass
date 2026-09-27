@@ -76,7 +76,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'company', 'company_name']
+        fields = ['id', 'username', 'email', 'role', 'company', 'company_name', 'is_active']
 
     def get_company_name(self, obj):
         return obj.company.name if obj.company else None
