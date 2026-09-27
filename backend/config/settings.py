@@ -70,13 +70,13 @@ REST_FRAMEWORK = {
 # DEFAULT_FROM_EMAIL = 'safaripass@example.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_TIMEOUT = 20
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('BREVO_EMAIL')
-EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY')
-DEFAULT_FROM_EMAIL = config('BREVO_EMAIL')
+EMAIL_HOST_USER = config('GMAIL_USER')
+EMAIL_HOST_PASSWORD = config('GMAIL_APP_PASSWORD')
+DEFAULT_FROM_EMAIL = config('GMAIL_USER')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
