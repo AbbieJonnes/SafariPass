@@ -60,14 +60,23 @@ REST_FRAMEWORK = {
     ],
 }
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp-relay.brevo.com'
+# EMAIL_PORT = 587
+# EMAIL_TIMEOUT = 10
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = config('BREVO_EMAIL')
+# EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY')
+# DEFAULT_FROM_EMAIL = 'safaripass@example.com'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
-EMAIL_TIMEOUT = 10
+EMAIL_TIMEOUT = 20
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('BREVO_EMAIL')
 EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY')
-DEFAULT_FROM_EMAIL = 'safaripass@example.com'
+DEFAULT_FROM_EMAIL = config('BREVO_EMAIL')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
