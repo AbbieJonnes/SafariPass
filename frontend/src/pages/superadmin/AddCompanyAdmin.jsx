@@ -17,30 +17,36 @@ function AddCompanyAdmin() {
     axiosInstance.get('/companies/').then((res) => setCompanies(res.data));
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setMessage('');
-    axiosInstance.post('/accounts/register/', {
-      username,
-      email,
-      role: 'company_admin',
-      company: companyId,
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  setMessage('');
+  axiosInstance.post('/accounts/register/', {
+    username,
+    email,
+    role: 'company_admin',
+    company: companyId,
+  })
+    .then(() => {
+      setSuccess(true);
+      setMessage(`Company admin created. ${username} will receive an email to set their password.`);
+      setUsername('');
+      setEmail('');
+      setCompanyId('');
     })
-      .then(() => {
-        setSuccess(true);
-        setMessage(`Company admin created. ${username} will receive an email to set their password.`);
-        setUsername('');
-        setEmail('');
-        setCompanyId('');
-      })
-      .catch(() => {
-        setSuccess(false);
-        setMessage('Could not create company admin. Check the details and try again.');
-      })
-      .finally(() => setSubmitting(false));
-  };
-
+    .catch((err) => {
+      setSuccess(false);
+      const data = err.response?.data;
+      if (data && typeof data === 'object') {
+        const firstKey = Object.keys(data)[0];
+        const firstMsg = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+        setMessage(`${firstKey}: ${firstMsg}`);
+      } else {
+        setMessage('Could not create company admin. Please try again.');
+      }
+    })
+    .finally(() => setSubmitting(false));
+};
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
