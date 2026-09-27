@@ -10,7 +10,22 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
   const [routePopularity, setRoutePopularity] = useState([]);
   const [validations, setValidations] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
+
+  const toArray = (data) => {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.results)) return data.results;
+    if (data && typeof data === 'object') return Object.entries(data).map(([k, v]) => ({ route: k, count: v }));
+    return [];
+  };
+
+  const firstNumber = (data, keys) => {
+    if (!data) return '—';
+    for (const key of keys) {
+      if (data[key] !== undefined) return data[key];
+    }
+    if (typeof data === 'number') return data;
+    return '—';
+  };
 
   useEffect(() => {
     Promise.allSettled([
@@ -21,18 +36,15 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
     ]).then(([rev, subs, routes, val]) => {
       if (rev.status === 'fulfilled') setRevenue(rev.value.data);
       if (subs.status === 'fulfilled') setActiveSubs(subs.value.data);
-      if (routes.status === 'fulfilled') setRoutePopularity(routes.value.data);
+      if (routes.status === 'fulfilled') setRoutePopularity(toArray(routes.value.data));
       if (val.status === 'fulfilled') setValidations(val.value.data);
-      if ([rev, subs, routes, val].every((r) => r.status === 'rejected')) {
-        setErrorMsg('Could not load analytics. Check that the analytics endpoints match your backend URLs.');
-      }
     }).finally(() => setLoading(false));
   }, []);
 
   const cards = [
-    { icon: faMoneyBillWave, label: 'Revenue', value: revenue?.total_revenue ?? revenue?.revenue ?? '—', color: 'bg-secondary' },
-    { icon: faUsers, label: 'Active Subscriptions', value: activeSubs?.count ?? activeSubs?.active_subscriptions ?? '—', color: 'bg-primary' },
-    { icon: faQrcode, label: 'Boarding Validations', value: validations?.count ?? validations?.total ?? '—', color: 'bg-accent' },
+    { icon: faMoneyBillWave, label: 'Revenue', value: firstNumber(revenue, ['total_revenue', 'revenue']), color: 'bg-secondary' },
+    { icon: faUsers, label: 'Active Subscriptions', value: firstNumber(activeSubs, ['count', 'active_subscriptions']), color: 'bg-primary' },
+    { icon: faQrcode, label: 'Boarding Validations', value: firstNumber(validations, ['count', 'total']), color: 'bg-accent' },
   ];
 
   return (
@@ -46,8 +58,6 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
           <p className="text-gray-400 text-center py-8">Loading...</p>
         ) : (
           <>
-            {errorMsg && <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-6">{errorMsg}</div>}
-
             <div className="grid sm:grid-cols-3 gap-6 mb-8">
               {cards.map((c) => (
                 <div key={c.label} className="bg-card rounded-2xl p-6 shadow-sm">
@@ -70,7 +80,7 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
                 {routePopularity.map((r, i) => (
                   <div key={i} className="bg-card rounded-xl p-4 shadow-sm flex justify-between text-sm">
                     <span className="text-textdark">{r.route || r.name || `Route ${i + 1}`}</span>
-                    <span className="font-semibold text-primary">{r.count || r.subscriptions || '—'}</span>
+                    <span className="font-semibold text-primary">{r.count ?? r.subscriptions ?? '—'}</span>
                   </div>
                 ))}
               </div>
