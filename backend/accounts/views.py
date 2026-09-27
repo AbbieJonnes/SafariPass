@@ -89,19 +89,23 @@ class RegisterView(generics.CreateAPIView):
         role_label = "Company Admin" if user.role == 'company_admin' else "Conductor"
         created_by = request.user.username
 
-        send_mail(
-            subject=f"Set Up Your SafariPass {role_label} Account",
-            message=(
-                f"Hi {user.username},\n\n"
-                f"An account has been created for you on SafariPass as a {role_label}, "
-                f"by {created_by}.\n\n"
-                f"Please set your password using the link below to activate your account:\n"
-                f"{set_password_link}\n\n"
-                f"— SafariPass"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
+        try:
+            send_mail(
+                subject=f"Set Up Your SafariPass {role_label} Account",
+                message=(
+                    f"Hi {user.username},\n\n"
+                    f"An account has been created for you on SafariPass as a {role_label}, "
+                    f"by {created_by}.\n\n"
+                    f"Please set your password using the link below to activate your account:\n"
+                    f"{set_password_link}\n\n"
+                    f"— SafariPass"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+            )
+        except Exception as e:
+            print(f"Failed to send set-password email to {user.email}: {e}")
+
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -161,12 +165,16 @@ class PasswordResetRequestView(APIView):
         token = default_token_generator.make_token(user)
         reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"
 
-        send_mail(
-            subject='SafariPass Password Reset',
-            message=f'Use this link to reset your password: {reset_link}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-        )
+        try:
+            send_mail(
+                subject='SafariPass Password Reset',
+                message=f'Use this link to reset your password: {reset_link}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+            )
+        except Exception as e:
+            print(f"Failed to send password reset email to {email}: {e}")
+
         return Response({'detail': 'If that email exists, a reset link has been sent.'})
 
 
@@ -201,6 +209,7 @@ class ProfileView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all().order_by('-id')
