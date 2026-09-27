@@ -18,42 +18,42 @@ function Register() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
-  setSlowNotice(false);
-
-  const slowTimer = setTimeout(() => setSlowNotice(true), 4000);
-
-  try {
-    await axiosInstance.post('/accounts/register/', {
-      ...formData,
-      role: 'passenger',
-    });
-    setSuccess(true);
-    setTimeout(() => navigate('/login'), 1500);
-  } catch (err) {
-    setError('Registration failed. Username or email may already be taken.');
-  } finally {
-    clearTimeout(slowTimer);
-    setLoading(false);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     setSlowNotice(false);
-  }
-};
 
-{slowNotice && (
-  <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3 mb-4">
-    Our server is waking up from idle — this can take up to a minute on the first request.
-  </div>
-)}
+    const slowTimer = setTimeout(() => setSlowNotice(true), 4000);
+
+    try {
+      await axiosInstance.post('/accounts/register/', {
+        ...formData,
+        role: 'passenger',
+      });
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 1500);
+    } catch (err) {
+      const data = err.response?.data;
+      if (data && typeof data === 'object') {
+        const firstKey = Object.keys(data)[0];
+        const firstMsg = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+        setError(`${firstKey}: ${firstMsg}`);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    } finally {
+      clearTimeout(slowTimer);
+      setLoading(false);
+      setSlowNotice(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
       {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
-        //   src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80"
-        src="https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=1200&q=80"
+          src="https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=1200&q=80"
           alt="City transit"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -98,6 +98,11 @@ function Register() {
           {error && (
             <div className="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-4">
               {error}
+            </div>
+          )}
+          {slowNotice && (
+            <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3 mb-4">
+              Our server is waking up from idle — this can take up to a minute on the first request.
             </div>
           )}
           {success && (
