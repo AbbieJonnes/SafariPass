@@ -17,7 +17,7 @@ function RouteShift() {
     Promise.all([
       axiosInstance.get('/subscriptions/'),
       axiosInstance.get('/companies/routes/'),
-      axiosInstance.get('/subscriptions/route-shifts/'),
+      axiosInstance.get('/subscriptions/shifts/'),
     ])
       .then(([subsRes, routesRes, shiftsRes]) => {
         if (subsRes.data.length > 0) setSubscription(subsRes.data[subsRes.data.length - 1]);
@@ -32,7 +32,7 @@ function RouteShift() {
     setSubmitting(true);
     setMessage('');
 
-    axiosInstance.post('/subscriptions/route-shifts/', {
+    axiosInstance.post('/subscriptions/shifts/', {
       subscription: subscription.id,
       temporary_route: selectedRoute.id,
     })
