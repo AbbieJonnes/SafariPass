@@ -34,13 +34,23 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         role = validated_data.get('role', 'passenger')
+        company = validated_data.get('company', None)
+
+        request = self.context.get('request')
+        if (
+            role == 'conductor'
+            and request is not None
+            and request.user.is_authenticated
+            and request.user.role == 'company_admin'
+        ):
+            company = request.user.company
 
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=password if password else None,
             role=role,
-            company=validated_data.get('company', None),
+            company=company,
         )
 
         if password and user.email:
