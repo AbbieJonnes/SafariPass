@@ -12,6 +12,7 @@ import MyQRCode from './pages/passenger/MyQRCode';
 import RouteShift from './pages/passenger/RouteShift';
 import PaymentHistory from './pages/passenger/PaymentHistory';
 import Profile from './pages/passenger/Profile';
+import RouteMap from './pages/passenger/RouteMap';
 
 import ConductorDashboard from './pages/conductor/ConductorDashboard';
 import ScanPass from './pages/conductor/ScanPass';
@@ -46,7 +47,8 @@ function App() {
       <Route path="/passenger/shift" element={<ProtectedRoute allowedRoles={['passenger']}><RouteShift /></ProtectedRoute>} />
       <Route path="/passenger/payments" element={<ProtectedRoute allowedRoles={['passenger']}><PaymentHistory /></ProtectedRoute>} />
       <Route path="/passenger/profile" element={<ProtectedRoute allowedRoles={['passenger']}><Profile /></ProtectedRoute>} />
-
+      <Route path="/passenger/map" element={<ProtectedRoute allowedRoles={['passenger']}><RouteMap /></ProtectedRoute>} />
+      
       <Route path="/conductor/dashboard" element={<ProtectedRoute allowedRoles={['conductor']}><ConductorDashboard /></ProtectedRoute>} />
       <Route path="/conductor/scan" element={<ProtectedRoute allowedRoles={['conductor']}><ScanPass /></ProtectedRoute>} />
       <Route path="/conductor/history" element={<ProtectedRoute allowedRoles={['conductor']}><ValidationHistory /></ProtectedRoute>} />
