@@ -84,7 +84,7 @@ class RegisterView(generics.CreateAPIView):
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        set_password_link = f"http://localhost:5173/set-password/{uid}/{token}/"
+        set_password_link = f"{settings.FRONTEND_URL}/set-password/{uid}/{token}/"
 
         role_label = "Company Admin" if user.role == 'company_admin' else "Conductor"
         created_by = request.user.username
@@ -163,7 +163,7 @@ class PasswordResetRequestView(APIView):
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"
+        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
         try:
             send_mail(
