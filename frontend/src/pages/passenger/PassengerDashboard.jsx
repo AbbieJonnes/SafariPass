@@ -22,6 +22,7 @@ function PassengerDashboard() {
     { icon: faMapLocationDot, title: 'Route Shift', desc: 'Temporarily change routes', to: '/passenger/shift', color: 'bg-accent' },
     { icon: faCreditCard, title: 'Payment History', desc: 'See past transactions', to: '/passenger/payments', color: 'bg-secondary' },
     { icon: faUser, title: 'My Profile', desc: 'Edit your account details', to: '/passenger/profile', color: 'bg-primary' },
+    { icon: faMapLocationDot, title: 'Route Map', desc: 'See your route and live location', to: '/passenger/map', color: 'bg-accent' },
   ];
 
   if (loading) {
