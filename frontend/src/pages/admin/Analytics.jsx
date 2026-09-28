@@ -11,22 +11,6 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
   const [validations, setValidations] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const toArray = (data) => {
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray(data.results)) return data.results;
-    if (data && typeof data === 'object') return Object.entries(data).map(([k, v]) => ({ route: k, count: v }));
-    return [];
-  };
-
-  const firstNumber = (data, keys) => {
-    if (!data) return '—';
-    for (const key of keys) {
-      if (data[key] !== undefined) return data[key];
-    }
-    if (typeof data === 'number') return data;
-    return '—';
-  };
-
   useEffect(() => {
     Promise.allSettled([
       axiosInstance.get('/analytics/revenue/'),
@@ -36,15 +20,15 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
     ]).then(([rev, subs, routes, val]) => {
       if (rev.status === 'fulfilled') setRevenue(rev.value.data);
       if (subs.status === 'fulfilled') setActiveSubs(subs.value.data);
-      if (routes.status === 'fulfilled') setRoutePopularity(toArray(routes.value.data));
+      if (routes.status === 'fulfilled') setRoutePopularity(routes.value.data.route_popularity || []);
       if (val.status === 'fulfilled') setValidations(val.value.data);
     }).finally(() => setLoading(false));
   }, []);
 
   const cards = [
-    { icon: faMoneyBillWave, label: 'Revenue', value: firstNumber(revenue, ['total_revenue', 'revenue']), color: 'bg-secondary' },
-    { icon: faUsers, label: 'Active Subscriptions', value: firstNumber(activeSubs, ['count', 'active_subscriptions']), color: 'bg-primary' },
-    { icon: faQrcode, label: 'Boarding Validations', value: firstNumber(validations, ['count', 'total']), color: 'bg-accent' },
+    { icon: faMoneyBillWave, label: 'Revenue', value: revenue ? `KES ${revenue.total_revenue}` : '—', color: 'bg-secondary' },
+    { icon: faUsers, label: 'Active Subscriptions', value: activeSubs ? activeSubs.total_active_subscriptions : '—', color: 'bg-primary' },
+    { icon: faQrcode, label: 'Boarding Validations', value: validations ? validations.total_validations : '—', color: 'bg-accent' },
   ];
 
   return (
@@ -74,13 +58,15 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
               <FontAwesomeIcon icon={faRoute} /> Route Popularity
             </h3>
             {routePopularity.length === 0 ? (
-              <p className="text-gray-400">No data yet.</p>
+              <p className="text-gray-400">No boarding scans recorded yet.</p>
             ) : (
               <div className="space-y-2">
-                {routePopularity.map((r, i) => (
-                  <div key={i} className="bg-card rounded-xl p-4 shadow-sm flex justify-between text-sm">
-                    <span className="text-textdark">{r.route || r.name || `Route ${i + 1}`}</span>
-                    <span className="font-semibold text-primary">{r.count ?? r.subscriptions ?? '—'}</span>
+                {routePopularity.map((r) => (
+                  <div key={r.subscription__route__id} className="bg-card rounded-xl p-4 shadow-sm flex justify-between text-sm">
+                    <span className="text-textdark">
+                      {r.subscription__route__origin} → {r.subscription__route__destination}
+                    </span>
+                    <span className="font-semibold text-primary">{r.validation_count} scans</span>
                   </div>
                 ))}
               </div>
