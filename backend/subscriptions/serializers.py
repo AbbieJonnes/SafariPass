@@ -41,9 +41,38 @@ class RouteShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteShift
         fields = '__all__'
+        read_only_fields = ['original_route', 'starts_at', 'ends_at', 'reverted', 'extra_amount_paid']
 
     def create(self, validated_data):
-        shift = RouteShift.objects.create(**validated_data)
+        subscription = validated_data['subscription']
+
+        if subscription.shift_count >= 3:
+            raise serializers.ValidationError({'detail': 'You have used all 3 route shifts for this subscription.'})
+
+        temporary_route = validated_data['temporary_route']
+        original_route = subscription.route
+
+        original_fare = Fare.objects.filter(route=original_route, effective_to__isnull=True).first()
+        new_fare = Fare.objects.filter(route=temporary_route, effective_to__isnull=True).first()
+
+        original_price = original_fare.price if original_fare else 0
+        new_price = new_fare.price if new_fare else 0
+        extra_amount = max(new_price - original_price, 0)
+
+        starts_at = timezone.now()
+        ends_at = subscription.expiry_date
+
+        shift = RouteShift.objects.create(
+            subscription=subscription,
+            original_route=original_route,
+            temporary_route=temporary_route,
+            starts_at=starts_at,
+            ends_at=ends_at,
+            extra_amount_paid=extra_amount,
+        )
+
+        subscription.shift_count += 1
+        subscription.save()
 
         passenger = shift.subscription.passenger
         if passenger.email:
