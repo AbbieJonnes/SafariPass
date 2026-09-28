@@ -88,14 +88,14 @@ class RegisterView(generics.CreateAPIView):
 
         role_label = "Company Admin" if user.role == 'company_admin' else "Conductor"
         created_by = request.user.username
+        company_name = user.company.name if user.company else "SafariPass"
 
         try:
             send_mail(
                 subject=f"Set Up Your SafariPass {role_label} Account",
                 message=(
                     f"Hi {user.username},\n\n"
-                    f"An account has been created for you on SafariPass as a {role_label}, "
-                    f"by {created_by}.\n\n"
+                    f"{created_by} has added you as a {role_label} for {company_name} on SafariPass.\n\n"
                     f"Please set your password using the link below to activate your account:\n"
                     f"{set_password_link}\n\n"
                     f"— SafariPass"
