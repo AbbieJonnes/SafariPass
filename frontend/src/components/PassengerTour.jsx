@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import * as JoyrideModule from 'react-joyride';
 const Joyride = JoyrideModule.default;
 const { STATUS } = JoyrideModule;
+
 const steps = [
   {
     target: '.tour-welcome',
