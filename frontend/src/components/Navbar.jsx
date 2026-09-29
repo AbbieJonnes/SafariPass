@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faRightFromBracket, faBusSimple } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faRightFromBracket, faBusSimple, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 
 const dashboardByRole = {
@@ -15,6 +15,11 @@ function Navbar() {
   const location = useLocation();
   const dashboardPath = user ? dashboardByRole[user.role] : '/';
   const isOnDashboard = location.pathname === dashboardPath;
+
+  const handleReplayTour = () => {
+    localStorage.removeItem('safaripass_tour_seen');
+    window.location.reload();
+  };
 
   return (
     <nav className="bg-card shadow-sm px-6 py-4 flex items-center justify-between">
@@ -34,6 +39,14 @@ function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        {user?.role === 'passenger' && isOnDashboard && (
+          <button
+            onClick={handleReplayTour}
+            className="flex items-center gap-1 text-sm text-secondary hover:opacity-80 transition"
+          >
+            <FontAwesomeIcon icon={faCircleQuestion} /> Replay Tour
+          </button>
+        )}
         <span className="text-sm text-gray-500 capitalize hidden sm:inline">
           {user?.username} — {user?.role?.replace('_', ' ')}
         </span>
