@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.conf import settings
 from .models import Payment, ValidationRecord
 from .serializers import PaymentSerializer, ValidationRecordSerializer
 from .mpesa import initiate_stk_push
@@ -21,6 +22,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
             return Payment.objects.filter(subscription__route__company=user.company).order_by('-id')
         return Payment.objects.all().order_by('-id')
 
+
 class ValidationRecordListCreateView(generics.ListCreateAPIView):
     queryset = ValidationRecord.objects.all()
     serializer_class = ValidationRecordSerializer
@@ -35,6 +37,7 @@ class ValidationRecordListCreateView(generics.ListCreateAPIView):
         if user.role == 'conductor':
             return ValidationRecord.objects.filter(conductor=user).order_by('-scanned_at')
         return ValidationRecord.objects.all().order_by('-scanned_at')
+
 
 class InitiateMpesaPaymentView(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,7 +88,6 @@ class MpesaCallbackView(APIView):
             passenger = subscription.passenger
             if passenger.email:
                 from django.core.mail import send_mail
-                from django.conf import settings
                 send_mail(
                     subject="Payment Successful — SafariPass",
                     message=(
@@ -93,6 +95,7 @@ class MpesaCallbackView(APIView):
                         f"Your payment of KES {payment.amount} was successful.\n\n"
                         f"Your subscription is now active on {subscription.route.origin} → {subscription.route.destination}, "
                         f"valid from {subscription.start_date.strftime('%d %b %Y')} to {subscription.expiry_date.strftime('%d %b %Y')}.\n\n"
+                        f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
                         f"If you ever need to temporarily switch routes, you can request a Route Shift from your account — "
                         f"it's free if the new route is the same price or cheaper, or you'll just pay the small difference if it's more expensive. "
                         f"Your pass automatically switches back to your original route once the shift period ends.\n\n"
