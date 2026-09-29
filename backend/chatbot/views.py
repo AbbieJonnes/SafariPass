@@ -49,7 +49,11 @@ class ChatView(APIView):
             reply = data["content"][0]["text"]
             return Response({'reply': reply})
         except Exception as e:
-            print(f"Chatbot error: {e}")
+            error_detail = getattr(e, 'response', None)
+            if error_detail is not None:
+                print(f"Chatbot error: {e} | Body: {error_detail.text}")
+            else:
+                print(f"Chatbot error: {e}")
             return Response(
                 {'reply': "Sorry, I'm having trouble responding right now. Please try again shortly."},
                 status=status.HTTP_200_OK
