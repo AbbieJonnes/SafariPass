@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'subscriptions',
     'payments',
     'django_celery_beat'
+    'chatbot'
 ]
 
 REST_FRAMEWORK = {
@@ -214,3 +215,5 @@ FRONTEND_URL = "http://localhost:5173"
 CORS_ALLOW_ALL_ORIGINS = True
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
