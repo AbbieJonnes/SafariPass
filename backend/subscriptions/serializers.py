@@ -1,6 +1,8 @@
 import uuid
 from datetime import timedelta
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework import serializers
 from .models import Subscription, RouteShift
 from companies.models import Fare
@@ -32,9 +34,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             qr_token=str(uuid.uuid4()),
         )
         return subscription
-
-from django.core.mail import send_mail
-from django.conf import settings
 
 
 class RouteShiftSerializer(serializers.ModelSerializer):
@@ -85,6 +84,7 @@ class RouteShiftSerializer(serializers.ModelSerializer):
                     f"to {shift.temporary_route.origin} → {shift.temporary_route.destination}.\n\n"
                     f"This shift is active from {shift.starts_at.strftime('%d %b %Y, %I:%M %p')} "
                     f"to {shift.ends_at.strftime('%d %b %Y, %I:%M %p')}.\n\n"
+                    f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
                     f"After that time, your pass will automatically return to your original route.\n\n"
                     f"— SafariPass"
                 ),
