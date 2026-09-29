@@ -21,7 +21,6 @@ class RunDailyChecksView(APIView):
         return Response({'status': 'Daily checks completed successfully.'})
 
 class SubscriptionListCreateView(generics.ListCreateAPIView):
-    queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
     def get_permissions(self):
@@ -29,15 +28,30 @@ class SubscriptionListCreateView(generics.ListCreateAPIView):
             return [IsPassenger()]
         return super().get_permissions()
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'passenger':
+            return Subscription.objects.filter(passenger=user).order_by('-start_date')
+        if user.role == 'company_admin':
+            return Subscription.objects.filter(route__company=user.company).order_by('-start_date')
+        return Subscription.objects.all().order_by('-start_date')
+
     def perform_create(self, serializer):
         serializer.save(passenger=self.request.user)
 
 
 class RouteShiftListCreateView(generics.ListCreateAPIView):
-    queryset = RouteShift.objects.all()
     serializer_class = RouteShiftSerializer
 
     def get_permissions(self):
         if self.request.method == 'POST':
             return [IsPassenger()]
         return super().get_permissions()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'passenger':
+            return RouteShift.objects.filter(subscription__passenger=user).order_by('-starts_at')
+        if user.role == 'company_admin':
+            return RouteShift.objects.filter(subscription__route__company=user.company).order_by('-starts_at')
+        return RouteShift.objects.all().order_by('-starts_at')
