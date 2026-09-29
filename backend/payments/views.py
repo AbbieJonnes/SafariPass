@@ -10,9 +10,16 @@ from subscriptions.models import Subscription
 
 
 class PaymentListCreateView(generics.ListCreateAPIView):
-    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'passenger':
+            return Payment.objects.filter(subscription__passenger=user).order_by('-id')
+        if user.role == 'company_admin':
+            return Payment.objects.filter(subscription__route__company=user.company).order_by('-id')
+        return Payment.objects.all().order_by('-id')
 
 class ValidationRecordListCreateView(generics.ListCreateAPIView):
     queryset = ValidationRecord.objects.all()
