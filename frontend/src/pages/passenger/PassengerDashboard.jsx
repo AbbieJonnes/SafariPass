@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
+import PassengerTour from '../../components/PassengerTour';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQrcode, faRoute, faCreditCard, faUser, faMapLocationDot, faArrowRight, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
@@ -18,11 +19,11 @@ function PassengerDashboard() {
   }, []);
 
   const cards = [
-    { icon: faQrcode, title: 'My QR Pass', desc: 'View your scannable pass', to: '/passenger/qr', color: 'bg-secondary' },
-    { icon: faMapLocationDot, title: 'Route Shift', desc: 'Temporarily change routes', to: '/passenger/shift', color: 'bg-accent' },
-    { icon: faCreditCard, title: 'Payment History', desc: 'See past transactions', to: '/passenger/payments', color: 'bg-secondary' },
-    { icon: faUser, title: 'My Profile', desc: 'Edit your account details', to: '/passenger/profile', color: 'bg-primary' },
-    { icon: faMapLocationDot, title: 'Route Map', desc: 'See your route and live location', to: '/passenger/map', color: 'bg-accent' },
+    { icon: faQrcode, title: 'My QR Pass', desc: 'View your scannable pass', to: '/passenger/qr', color: 'bg-secondary', tourClass: 'tour-qr' },
+    { icon: faMapLocationDot, title: 'Route Shift', desc: 'Temporarily change routes', to: '/passenger/shift', color: 'bg-accent', tourClass: 'tour-shift' },
+    { icon: faCreditCard, title: 'Payment History', desc: 'See past transactions', to: '/passenger/payments', color: 'bg-secondary', tourClass: 'tour-payments' },
+    { icon: faUser, title: 'My Profile', desc: 'Edit your account details', to: '/passenger/profile', color: 'bg-primary', tourClass: 'tour-profile' },
+    { icon: faMapLocationDot, title: 'Route Map', desc: 'See your route and live location', to: '/passenger/map', color: 'bg-accent', tourClass: '' },
   ];
 
   if (loading) {
@@ -38,7 +39,8 @@ function PassengerDashboard() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="max-w-2xl mx-auto px-6 py-16 text-center">
+        <PassengerTour />
+        <div className="max-w-2xl mx-auto px-6 py-16 text-center tour-welcome">
           <div className="bg-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <FontAwesomeIcon icon={faRoute} className="text-white text-2xl" />
           </div>
@@ -64,8 +66,9 @@ function PassengerDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <PassengerTour />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold text-primary mb-1">Welcome back</h1>
+        <h1 className="text-2xl font-bold text-primary mb-1 tour-welcome">Welcome back</h1>
         <p className="text-gray-500 mb-6">Here's your account at a glance.</p>
 
         <div className="bg-card rounded-2xl p-6 shadow-sm mb-8 flex items-center justify-between flex-wrap gap-4">
@@ -83,7 +86,7 @@ function PassengerDashboard() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {cards.map((card) => (
-            <Link key={card.title} to={card.to} className="bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition group">
+            <Link key={card.title} to={card.to} className={`bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition group ${card.tourClass}`}>
               <div className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
                 <FontAwesomeIcon icon={card.icon} className="text-white text-xl" />
               </div>
