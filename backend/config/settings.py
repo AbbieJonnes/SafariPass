@@ -47,8 +47,9 @@ INSTALLED_APPS = [
     'companies',
     'subscriptions',
     'payments',
-    'django_celery_beat'
-    'chatbot'
+    'analytics',
+    'django_celery_beat',
+    'chatbot',
 ]
 
 REST_FRAMEWORK = {
