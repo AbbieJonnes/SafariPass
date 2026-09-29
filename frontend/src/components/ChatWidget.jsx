@@ -96,7 +96,7 @@ const RULES = [
   },
 ];
 
-const FALLBACK = "I'm not sure about that one. Try asking about subscribing, your QR pass, route shifts, payments, or the map, or check the relevant dashboard for more options.";
+const FALLBACK = "You Can Try asking about subscribing, your QR pass, route shifts, payments, or the map, or check the relevant dashboard for more options.";
 
 function getReply(text) {
   const lower = text.toLowerCase();
@@ -111,7 +111,7 @@ function getReply(text) {
 function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: "Hi, I'm the SafariPass assistant. Ask me about subscribing, your QR pass, route shifts, payments, or the map." },
+    { role: 'assistant', text: "Hey There, I'm the SafariPass assistant. Ask me about subscribing, your QR pass, route shifts, payments, or the map." },
   ]);
   const [input, setInput] = useState('');
   const scrollRef = useRef(null);
