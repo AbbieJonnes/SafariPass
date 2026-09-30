@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faLocationDot, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../../components/Navbar';
+import PaymentModal from '../../components/PaymentModal';
 import axiosInstance from '../../api/axiosInstance';
 
 function BrowseRoutes() {
@@ -19,6 +20,7 @@ function BrowseRoutes() {
   const [error, setError] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [paymentPending, setPaymentPending] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,8 +86,7 @@ function BrowseRoutes() {
       })
       .then(() => {
         setError('');
-        alert('Check your phone to complete the M-Pesa payment (Lipa Na M-Pesa prompt).');
-        navigate('/passenger/dashboard');
+        setShowPaymentModal(true);
       })
       .catch(() => setError('Subscription or payment failed. Please try again.'))
       .finally(() => {
@@ -239,6 +240,14 @@ function BrowseRoutes() {
           </>
         )}
       </div>
+
+      <PaymentModal
+        open={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          navigate('/passenger/dashboard');
+        }}
+      />
     </div>
   );
 }
