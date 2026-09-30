@@ -63,9 +63,12 @@ class FareSerializer(serializers.ModelSerializer):
             old_fare.effective_to = timezone.now()
             old_fare.save()
 
+        evening_price = validated_data.get('evening_price') or validated_data['price']
+
         new_fare = Fare.objects.create(
             route=route,
             price=validated_data['price'],
+            evening_price=evening_price,
             set_by=request.user if request else None,
         )
 
