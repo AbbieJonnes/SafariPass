@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
+from django.core.mail import send_mail
 from .models import Payment, ValidationRecord
 from .serializers import PaymentSerializer, ValidationRecordSerializer
 from .mpesa import initiate_stk_push
@@ -87,7 +88,6 @@ class MpesaCallbackView(APIView):
             subscription = payment.subscription
             passenger = subscription.passenger
             if passenger.email:
-                from django.core.mail import send_mail
                 send_mail(
                     subject="Payment Successful — SafariPass",
                     message=(
@@ -107,5 +107,20 @@ class MpesaCallbackView(APIView):
         else:
             payment.status = 'failed'
             payment.save()
+
+            subscription = payment.subscription
+            passenger = subscription.passenger
+            if passenger.email:
+                send_mail(
+                    subject="Payment Not Completed — SafariPass",
+                    message=(
+                        f"Hi {passenger.username},\n\n"
+                        f"Your payment of KES {payment.amount} was not completed.\n\n"
+                        f"You can try subscribing again from Browse Routes.\n\n"
+                        f"— SafariPass"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[passenger.email],
+                )
 
         return Response({'ResultCode': 0, 'ResultDesc': 'Accepted'})
