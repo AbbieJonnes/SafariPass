@@ -98,7 +98,8 @@ class FareSerializer(serializers.ModelSerializer):
                 message=(
                     f"Hi {user.username},\n\n"
                     f"The fare for {route.origin} → {route.destination} "
-                    f"with {company.name} has changed to KES {fare.price}.\n\n"
+                    f"with {company.name} has changed to KES {fare.price} in the morning "
+                    f"and KES {fare.evening_price} in the evening.\n\n"
                     f"— SafariPass"
                 ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
