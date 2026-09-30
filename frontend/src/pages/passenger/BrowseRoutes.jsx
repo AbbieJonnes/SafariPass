@@ -60,9 +60,10 @@ function BrowseRoutes() {
   const currentFare = selectedRoute
     ? fares.find((f) => f.route === selectedRoute.id && !f.effective_to)
     : null;
-  const basePrice = currentFare ? parseFloat(currentFare.price) : 0;
+  const morningPrice = currentFare ? parseFloat(currentFare.price) : 0;
+  const eveningPrice = currentFare && currentFare.evening_price ? parseFloat(currentFare.evening_price) : morningPrice;
   const estimatedPrice = selectedPlan
-    ? (basePrice * parseFloat(selectedPlan.price_multiplier)).toFixed(2)
+    ? ((morningPrice + eveningPrice) * parseFloat(selectedPlan.price_multiplier)).toFixed(2)
     : null;
 
   const handleSubscribe = () => {
@@ -177,7 +178,7 @@ function BrowseRoutes() {
               <div className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   {planTypes.map((plan) => {
-                    const planPrice = (basePrice * parseFloat(plan.price_multiplier)).toFixed(2);
+                    const planPrice = ((morningPrice + eveningPrice) * parseFloat(plan.price_multiplier)).toFixed(2);
                     return (
                       <button
                         key={plan.id}
@@ -199,6 +200,13 @@ function BrowseRoutes() {
                     );
                   })}
                 </div>
+
+                {selectedRoute && currentFare && (
+                  <div className="text-sm text-gray-500 flex justify-between px-1">
+                    <span>Morning: KES {morningPrice}</span>
+                    <span>Evening: KES {eveningPrice}</span>
+                  </div>
+                )}
 
                 {selectedPlan && (
                   <div className="bg-secondary/5 border border-secondary/20 rounded-xl px-4 py-3 flex justify-between items-center">
