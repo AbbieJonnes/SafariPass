@@ -65,3 +65,39 @@ def revert_expired_route_shifts():
                 recipient_list=[shift.subscription.passenger.email],
             )
             NotificationLog.objects.create(user=shift.subscription.passenger, type='shift_reverted')
+
+
+@shared_task
+def send_expiry_warnings():
+    from accounts.models import NotificationLog
+
+    warning_date = timezone.now() + timedelta(days=1)
+    expiring_soon = Subscription.objects.filter(
+        status='active',
+        expiry_date__gte=timezone.now(),
+        expiry_date__lte=warning_date,
+    )
+
+    for sub in expiring_soon:
+        already_warned = NotificationLog.objects.filter(
+            user=sub.passenger,
+            type='expiry_warning',
+        ).filter(sent_at__date=timezone.now().date()).exists()
+
+        if already_warned:
+            continue
+
+        if sub.passenger.email:
+            send_mail(
+                subject="Your SafariPass subscription expires soon",
+                message=(
+                    f"Hi {sub.passenger.username},\n\n"
+                    f"Your subscription on {sub.route} expires on "
+                    f"{sub.expiry_date.strftime('%d %b %Y, %I:%M %p')}.\n\n"
+                    f"Renew from Browse Routes to avoid any interruption.\n\n"
+                    f"— SafariPass"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[sub.passenger.email],
+            )
+            NotificationLog.objects.create(user=sub.passenger, type='expiry_warning')
