@@ -23,7 +23,6 @@ function PassengerDashboard() {
     { icon: faMapLocationDot, title: 'Route Shift', desc: 'Temporarily change routes', to: '/passenger/shift', color: 'bg-accent', tourClass: 'tour-shift' },
     { icon: faCreditCard, title: 'Payment History', desc: 'See past transactions', to: '/passenger/payments', color: 'bg-secondary', tourClass: 'tour-payments' },
     { icon: faUser, title: 'My Profile', desc: 'Edit your account details', to: '/passenger/profile', color: 'bg-primary', tourClass: 'tour-profile' },
-    { icon: faMapLocationDot, title: 'Route Map', desc: 'See your route and live location', to: '/passenger/map', color: 'bg-accent', tourClass: '' },
   ];
 
   if (loading) {
