@@ -10,6 +10,7 @@ function ManageFares() {
   const [company, setCompany] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState('');
   const [price, setPrice] = useState('');
+  const [eveningPrice, setEveningPrice] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -40,11 +41,13 @@ function ManageFares() {
     axiosInstance.post('/companies/fares/', {
       route: selectedRoute,
       price,
+      evening_price: eveningPrice || null,
       effective_from: new Date().toISOString().split('T')[0],
     })
       .then(() => {
         setMessage('Fare added — passengers and conductors on this route have been notified.');
         setPrice('');
+        setEveningPrice('');
         setSelectedRoute('');
         loadData(company);
       })
@@ -69,20 +72,26 @@ function ManageFares() {
             <FontAwesomeIcon icon={faPlus} className="text-secondary" /> Set New Fare
           </h3>
           {message && <div className="bg-blue-50 text-blue-700 text-sm rounded-lg px-4 py-3">{message}</div>}
+          <div>
+            <label className="block text-sm font-medium text-textdark mb-1">Route</label>
+            <select value={selectedRoute} onChange={(e) => setSelectedRoute(e.target.value)} required
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary">
+              <option value="">Select a route</option>
+              {routes.map((r) => (
+                <option key={r.id} value={r.id}>{r.origin} → {r.destination}</option>
+              ))}
+            </select>
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-textdark mb-1">Route</label>
-              <select value={selectedRoute} onChange={(e) => setSelectedRoute(e.target.value)} required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary">
-                <option value="">Select a route</option>
-                {routes.map((r) => (
-                  <option key={r.id} value={r.id}>{r.origin} → {r.destination}</option>
-                ))}
-              </select>
+              <label className="block text-sm font-medium text-textdark mb-1">Morning Price (KES)</label>
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required min="1"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-textdark mb-1">Price (KES)</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required min="1"
+              <label className="block text-sm font-medium text-textdark mb-1">Evening Price (KES)</label>
+              <input type="number" value={eveningPrice} onChange={(e) => setEveningPrice(e.target.value)} min="1"
+                placeholder="Same as morning if left blank"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary" />
             </div>
           </div>
@@ -107,7 +116,10 @@ function ManageFares() {
                   </div>
                   <p className="text-sm font-medium text-textdark">{routeLabel(f.route)}</p>
                 </div>
-                <p className="font-bold text-primary">KES {f.price}</p>
+                <div className="text-right">
+                  <p className="font-bold text-primary">KES {f.price} <span className="text-gray-400 font-normal">morning</span></p>
+                  <p className="text-sm text-gray-500">KES {f.evening_price ?? f.price} <span className="text-gray-400">evening</span></p>
+                </div>
               </div>
             ))}
           </div>
