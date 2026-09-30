@@ -19,8 +19,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         plan_type = validated_data['plan_type']
 
         current_fare = Fare.objects.filter(route=route, effective_to__isnull=True).first()
-        base_price = current_fare.price if current_fare else 0
-        price_paid = base_price * plan_type.price_multiplier
+        morning_price = current_fare.price if current_fare else 0
+        evening_price = current_fare.evening_price if current_fare and current_fare.evening_price else morning_price
+        price_paid = (morning_price + evening_price) * plan_type.price_multiplier
 
         duration_days = 7 if plan_type.duration == 'weekly' else 30
         expiry_date = timezone.now() + timedelta(days=duration_days)
