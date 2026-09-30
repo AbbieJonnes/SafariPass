@@ -34,7 +34,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             qr_token=str(uuid.uuid4()),
         )
         return subscription
-
+    
+    def to_representation(self, instance):
+        from companies.serializers import RouteSerializer
+        data = super().to_representation(instance)
+        data['route'] = RouteSerializer(instance.route).data
+        return data
 
 class RouteShiftSerializer(serializers.ModelSerializer):
     class Meta:
