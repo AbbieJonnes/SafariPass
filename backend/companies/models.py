@@ -26,6 +26,7 @@ class Route(models.Model):
 class Fare(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='fares')
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    evening_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     effective_from = models.DateTimeField(auto_now_add=True)
     effective_to = models.DateTimeField(null=True, blank=True)
     set_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True)
