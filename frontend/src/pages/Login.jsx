@@ -105,7 +105,7 @@ function Login() {
             </div>
 
             {/* Heading */}
-            <h2 className="text-4xl xl:text-5xl font-bold leading-tight mb-6">
+            <h2 className="text-3xl xl:text-4xl font-bold leading-tight mb-6">
               Welcome back.
               <span className="block text-accent mt-2">
                 Your journey continues.
@@ -113,7 +113,7 @@ function Login() {
             </h2>
 
             {/* Description */}
-            <p className="text-gray-200 leading-relaxed text-base xl:text-lg">
+            <p className="text-gray-200 leading-relaxed text-base">
               Log in to check your subscription, view your digital QR pass,
               and manage your transport journey — all in one place.
             </p>
@@ -199,7 +199,7 @@ function Login() {
                 Welcome back
               </p>
 
-              <h1 className="text-2xl sm:text-3xl font-bold text-primary">
+              <h1 className="text-2xl font-bold text-primary">
                 Log in to your account
               </h1>
 
