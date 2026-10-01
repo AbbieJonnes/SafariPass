@@ -67,6 +67,21 @@ class InitiateMpesaPaymentView(APIView):
 
         return Response(result, status=status.HTTP_200_OK)
 
+class PaymentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        subscription_id = request.query_params.get('subscription')
+
+        payment = Payment.objects.filter(
+            subscription_id=subscription_id,
+            subscription__passenger=request.user,
+        ).order_by('-id').first()
+
+        if not payment:
+            return Response({'status': 'not_found'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'status': payment.status})
 
 class MpesaCallbackView(APIView):
     permission_classes = [AllowAny]
