@@ -72,7 +72,7 @@ function Login() {
 
         <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/80 to-secondary/75"></div>
 
-        <div className="relative z-10 flex flex-col justify-between p-10 xl:p-14 text-white w-full">
+        <div className="relative z-10 flex flex-col p-10 xl:p-14 text-white w-full h-full">
 
           {/* Logo */}
           <Link
@@ -90,9 +90,10 @@ function Login() {
           </Link>
 
           {/* Main Message */}
-          <div className="max-w-md">
+          <div className="max-w-md mt-auto mb-auto py-16">
 
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6">
+            {/* Small Badge */}
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8">
               <FontAwesomeIcon
                 icon={faShieldHalved}
                 className="text-accent text-sm"
@@ -103,23 +104,27 @@ function Login() {
               </span>
             </div>
 
-            <h2 className="text-4xl xl:text-5xl font-bold leading-tight mb-5">
+            {/* Heading */}
+            <h2 className="text-4xl xl:text-5xl font-bold leading-tight mb-6">
               Welcome back.
-              <span className="block text-accent">
+              <span className="block text-accent mt-2">
                 Your journey continues.
               </span>
             </h2>
 
+            {/* Description */}
             <p className="text-gray-200 leading-relaxed text-base xl:text-lg">
               Log in to check your subscription, view your digital QR pass,
               and manage your transport journey — all in one place.
             </p>
 
             {/* Feature Highlights */}
-            <div className="mt-8 space-y-4">
+            <div className="mt-10 space-y-6">
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+              {/* Feature 1 */}
+              <div className="flex items-center gap-4">
+
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <FontAwesomeIcon
                     icon={faShieldHalved}
                     className="text-accent"
@@ -129,10 +134,13 @@ function Login() {
                 <span className="text-sm text-gray-200">
                   Secure transport payments
                 </span>
+
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+              {/* Feature 2 */}
+              <div className="flex items-center gap-4">
+
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <FontAwesomeIcon
                     icon={faBusSimple}
                     className="text-accent"
@@ -142,6 +150,7 @@ function Login() {
                 <span className="text-sm text-gray-200">
                   Manage your daily commute
                 </span>
+
               </div>
 
             </div>
@@ -149,7 +158,7 @@ function Login() {
           </div>
 
           {/* Copyright */}
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-gray-300 mt-8">
             &copy; {new Date().getFullYear()} SafariPass. All rights reserved.
           </p>
 
@@ -323,7 +332,6 @@ function Login() {
 
             {/* Register Link */}
             <p className="text-sm text-center mt-7 text-gray-500">
-
               Don't have an account?{' '}
 
               <Link
@@ -332,7 +340,6 @@ function Login() {
               >
                 Sign up
               </Link>
-
             </p>
 
           </div>
