@@ -101,49 +101,52 @@ function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-textdark">
+    <div className="min-h-screen bg-background text-textdark overflow-x-hidden">
 
       {/* Public Navbar */}
       <nav className="absolute top-0 left-0 right-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 py-5">
-          <div className="bg-white/95 backdrop-blur-md shadow-lg rounded-2xl px-5 py-3 flex items-center justify-between">
-            
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
+          <div className="bg-white/95 backdrop-blur-md shadow-lg rounded-2xl px-4 sm:px-5 py-3 flex items-center justify-between">
+
             {/* Logo */}
             <Link
               to="/"
-              className="flex items-center gap-2 font-bold text-primary text-xl"
+              className="flex items-center gap-2 font-bold text-primary text-lg sm:text-xl"
             >
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center">
                 <FontAwesomeIcon
                   icon={faBusSimple}
-                  className="text-accent"
+                  className="text-accent text-sm sm:text-base"
                 />
               </div>
+
               SafariPass
             </Link>
 
             {/* Navigation */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+
               <Link
                 to="/login"
-                className="hidden sm:block px-4 py-2 text-sm font-medium text-primary hover:text-secondary transition"
+                className="px-3 sm:px-4 py-2 text-sm font-medium text-primary hover:text-secondary transition"
               >
                 Log In
               </Link>
 
               <Link
                 to="/register"
-                className="bg-accent text-primary font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition shadow-sm"
+                className="bg-accent text-primary font-semibold px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg hover:opacity-90 transition shadow-sm text-sm sm:text-base"
               >
                 Get Started
               </Link>
+
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative min-h-[720px] flex items-center overflow-hidden">
+      <section className="relative min-h-screen lg:min-h-[720px] flex items-center overflow-hidden">
 
         {/* Background Image */}
         <div className="absolute inset-0">
@@ -159,33 +162,41 @@ function Landing() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 pt-28 sm:pt-32 pb-16 sm:pb-20">
+
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-14 items-center">
 
             {/* Left */}
             <div className="text-center lg:text-left">
 
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6">
+              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-3 sm:px-4 py-2 mb-5 sm:mb-6">
+
                 <span className="w-2 h-2 rounded-full bg-accent"></span>
-                <span className="text-sm text-white/90">
+
+                <span className="text-xs sm:text-sm text-white/90">
                   Smarter commuting starts here
                 </span>
+
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-5 sm:mb-6">
+
                 Your Daily Commute,
+
                 <span className="block text-accent">
                   Simplified.
                 </span>
+
               </h1>
 
-              <p className="text-lg text-gray-200 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8">
+              <p className="text-base sm:text-lg text-gray-200 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-7 sm:mb-8">
                 Subscribe to your preferred transport plan, pay with M-Pesa,
                 and ride with a digital pass. SafariPass makes everyday
                 commuting simpler, faster, and more convenient.
               </p>
 
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4">
+
                 <Link
                   to="/register"
                   className="inline-flex items-center justify-center gap-2 bg-accent text-primary font-bold px-7 py-3.5 rounded-lg hover:opacity-90 transition shadow-lg"
@@ -200,9 +211,11 @@ function Landing() {
                 >
                   Log In
                 </Link>
+
               </div>
 
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6 mt-8 text-sm text-gray-200">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 mt-7 sm:mt-8 text-sm text-gray-200">
+
                 <div className="flex items-center gap-2">
                   <FontAwesomeIcon icon={faCheck} className="text-accent" />
                   M-Pesa payments
@@ -217,24 +230,30 @@ function Landing() {
                   <FontAwesomeIcon icon={faCheck} className="text-accent" />
                   Flexible plans
                 </div>
+
               </div>
+
             </div>
 
             {/* QR Pass Visual */}
-            <div className="hidden lg:flex justify-center">
-              <div className="relative">
+            <div className="flex justify-center px-2 sm:px-4">
+
+              <div className="relative w-full max-w-[350px]">
 
                 {/* Decorative Circle */}
-                <div className="absolute -inset-8 bg-accent/10 rounded-full blur-2xl"></div>
+                <div className="absolute -inset-6 sm:-inset-8 bg-accent/10 rounded-full blur-2xl"></div>
 
                 {/* Pass Card */}
-                <div className="relative w-[350px] bg-white rounded-3xl shadow-2xl overflow-hidden transform rotate-2 hover:rotate-0 transition duration-500">
+                <div className="relative w-full bg-white rounded-3xl shadow-2xl overflow-hidden transform rotate-2 hover:rotate-0 transition duration-500">
 
-                  <div className="bg-primary px-6 py-5 flex items-center justify-between">
+                  {/* Card Header */}
+                  <div className="bg-primary px-5 sm:px-6 py-5 flex items-center justify-between">
+
                     <div>
-                      <p className="text-xs text-gray-300 uppercase tracking-wider">
+                      <p className="text-[10px] sm:text-xs text-gray-300 uppercase tracking-wider">
                         Digital Transport Pass
                       </p>
+
                       <p className="text-white font-bold text-lg mt-1">
                         SafariPass
                       </p>
@@ -242,17 +261,22 @@ function Landing() {
 
                     <FontAwesomeIcon
                       icon={faBusSimple}
-                      className="text-accent text-2xl"
+                      className="text-accent text-xl sm:text-2xl"
                     />
+
                   </div>
 
-                  <div className="p-7">
+                  {/* Card Body */}
+                  <div className="p-5 sm:p-7">
 
-                    <div className="flex justify-between mb-6">
+                    {/* Passenger + Status */}
+                    <div className="flex justify-between mb-5 sm:mb-6">
+
                       <div>
                         <p className="text-xs text-gray-400">
                           PASSENGER
                         </p>
+
                         <p className="font-semibold text-primary mt-1">
                           Active Pass
                         </p>
@@ -262,15 +286,18 @@ function Landing() {
                         <p className="text-xs text-gray-400">
                           STATUS
                         </p>
+
                         <p className="text-sm font-semibold text-secondary mt-1">
                           Active
                         </p>
                       </div>
+
                     </div>
 
                     {/* QR-style visual */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex justify-center">
-                      <div className="w-40 h-40 grid grid-cols-8 gap-1">
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 flex justify-center">
+
+                      <div className="w-32 h-32 sm:w-40 sm:h-40 grid grid-cols-8 gap-1">
 
                         {[
                           1, 1, 1, 0, 1, 1, 1, 1,
@@ -295,11 +322,14 @@ function Landing() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center mt-6">
+                    {/* Plan + Valid */}
+                    <div className="flex justify-between items-center mt-5 sm:mt-6">
+
                       <div>
                         <p className="text-xs text-gray-400">
                           PLAN
                         </p>
+
                         <p className="font-semibold text-textdark">
                           Monthly
                         </p>
@@ -308,26 +338,31 @@ function Landing() {
                       <div className="bg-accent/15 text-primary px-3 py-1.5 rounded-full text-xs font-semibold">
                         VALID
                       </div>
+
                     </div>
 
-                  </div>
-                </div>
+                    {/* Secure Digital Payment */}
+                    <div className="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-gray-100 flex items-center gap-3">
 
-                {/* Floating badge */}
-                <div className="absolute -right-8 bottom-8 bg-white rounded-xl shadow-xl px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faShieldHalved}
-                      className="text-secondary"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">
-                      Secure
-                    </p>
-                    <p className="text-sm font-semibold text-primary">
-                      Digital Payment
-                    </p>
+                      <div className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                        <FontAwesomeIcon
+                          icon={faShieldHalved}
+                          className="text-secondary"
+                        />
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-gray-400">
+                          Secure
+                        </p>
+
+                        <p className="text-sm font-semibold text-primary">
+                          Digital Payment
+                        </p>
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
 
@@ -340,13 +375,16 @@ function Landing() {
 
       {/* Intro Strip */}
       <section className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid sm:grid-cols-3 gap-6 text-center sm:divide-x divide-gray-200">
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:divide-x divide-gray-200">
 
             <div>
               <p className="text-2xl font-bold text-primary">
                 Digital
               </p>
+
               <p className="text-sm text-gray-500 mt-1">
                 Transport subscriptions
               </p>
@@ -356,6 +394,7 @@ function Landing() {
               <p className="text-2xl font-bold text-primary">
                 M-Pesa
               </p>
+
               <p className="text-sm text-gray-500 mt-1">
                 Convenient payments
               </p>
@@ -365,6 +404,7 @@ function Landing() {
               <p className="text-2xl font-bold text-primary">
                 QR
               </p>
+
               <p className="text-sm text-gray-500 mt-1">
                 Simple fare validation
               </p>
@@ -375,9 +415,10 @@ function Landing() {
       </section>
 
       {/* Why Choose SafariPass */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
 
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+
           <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
             Why SafariPass
           </p>
@@ -390,6 +431,7 @@ function Landing() {
             Everything you need to make your everyday transport experience
             easier, more flexible, and more convenient.
           </p>
+
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -401,10 +443,12 @@ function Landing() {
             >
 
               <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary transition duration-300">
+
                 <FontAwesomeIcon
                   icon={feature.icon}
                   className="text-secondary text-2xl group-hover:text-white transition duration-300"
                 />
+
               </div>
 
               <h3 className="font-bold text-lg text-primary mb-3">
@@ -422,11 +466,12 @@ function Landing() {
       </section>
 
       {/* Transport Operators */}
-      <section className="bg-primary py-24">
+      <section className="bg-primary py-16 sm:py-24">
 
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-          <div className="max-w-2xl mb-14">
+          <div className="max-w-2xl mb-10 sm:mb-14">
+
             <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-3">
               Transport Partners
             </p>
@@ -439,9 +484,10 @@ function Landing() {
               SafariPass brings your transport subscription experience into
               one convenient digital platform.
             </p>
+
           </div>
 
-          <div className="grid md:grid-cols-3 gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
 
             {operators.map((operator) => (
               <div
@@ -449,16 +495,20 @@ function Landing() {
                 className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:-translate-y-2 transition duration-300"
               >
 
-                <div className="h-56 overflow-hidden">
+                <div className="h-52 sm:h-56 overflow-hidden">
+
                   <img
                     src={operator.image}
                     alt={operator.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
+
                 </div>
 
                 <div className="p-6">
+
                   <div className="flex items-center gap-2 mb-3">
+
                     <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
                       <FontAwesomeIcon
                         icon={faBusSimple}
@@ -469,11 +519,13 @@ function Landing() {
                     <h3 className="font-bold text-lg text-primary">
                       {operator.name}
                     </h3>
+
                   </div>
 
                   <p className="text-sm text-gray-500 leading-relaxed">
                     {operator.description}
                   </p>
+
                 </div>
 
               </div>
@@ -484,11 +536,12 @@ function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-white py-24">
+      <section className="bg-white py-16 sm:py-24">
 
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+
             <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
               Simple Process
             </p>
@@ -501,9 +554,10 @@ function Landing() {
               Get your digital transport pass and start your journey in four
               simple steps.
             </p>
+
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
 
             {steps.map((step, index) => (
               <div
@@ -517,6 +571,7 @@ function Landing() {
                 )}
 
                 <div className="relative z-10 w-20 h-20 mx-auto bg-background border border-gray-200 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+
                   <FontAwesomeIcon
                     icon={step.icon}
                     className="text-secondary text-2xl"
@@ -525,6 +580,7 @@ function Landing() {
                   <span className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                     {step.number}
                   </span>
+
                 </div>
 
                 <h3 className="font-bold text-lg text-primary mb-3">
@@ -543,20 +599,23 @@ function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="px-6 py-24 bg-background">
+      <section className="px-4 sm:px-6 py-16 sm:py-24 bg-background">
 
-        <div className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl bg-secondary px-8 py-16 md:px-16 text-center shadow-xl">
+        <div className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl bg-secondary px-6 sm:px-8 py-14 sm:py-16 md:px-16 text-center shadow-xl">
 
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/5 rounded-full"></div>
+
           <div className="absolute -bottom-32 -left-20 w-72 h-72 bg-primary/20 rounded-full"></div>
 
           <div className="relative z-10">
 
             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-6">
+
               <FontAwesomeIcon
                 icon={faBusSimple}
                 className="text-accent text-2xl"
               />
+
             </div>
 
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -583,21 +642,26 @@ function Landing() {
       {/* Footer */}
       <footer className="bg-primary text-gray-300">
 
-        <div className="max-w-7xl mx-auto px-6 py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-14">
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
             {/* Brand */}
             <div>
 
               <div className="flex items-center gap-2 text-white font-bold text-xl mb-4">
+
                 <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+
                   <FontAwesomeIcon
                     icon={faBusSimple}
                     className="text-accent"
                   />
+
                 </div>
+
                 SafariPass
+
               </div>
 
               <p className="text-sm leading-relaxed max-w-xs">
@@ -657,6 +721,7 @@ function Landing() {
               <ul className="space-y-4 text-sm">
 
                 <li className="flex items-start gap-3">
+
                   <FontAwesomeIcon
                     icon={faEnvelope}
                     className="text-accent mt-1"
@@ -664,13 +729,15 @@ function Landing() {
 
                   <a
                     href="mailto:abigaelmwangi534@gmail.com"
-                    className="hover:text-accent transition"
+                    className="hover:text-accent transition break-all"
                   >
                     abigaelmwangi534@gmail.com
                   </a>
+
                 </li>
 
                 <li className="flex items-start gap-3">
+
                   <FontAwesomeIcon
                     icon={faPhone}
                     className="text-accent mt-1"
@@ -682,9 +749,11 @@ function Landing() {
                   >
                     +254 720 912 466
                   </a>
+
                 </li>
 
                 <li className="flex items-start gap-3">
+
                   <FontAwesomeIcon
                     icon={faLocationDot}
                     className="text-accent mt-1"
@@ -693,6 +762,7 @@ function Landing() {
                   <span>
                     Nairobi, Kenya
                   </span>
+
                 </li>
 
               </ul>
@@ -749,10 +819,10 @@ function Landing() {
           </div>
 
           {/* Bottom */}
-          <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-400">
+          <div className="border-t border-white/10 mt-10 sm:mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-400 text-center sm:text-left">
 
             <p>
-             &copy; {new Date().getFullYear()} SafariPass. All rights reserved.
+              &copy; {new Date().getFullYear()} SafariPass. All rights reserved.
             </p>
 
             <p>
