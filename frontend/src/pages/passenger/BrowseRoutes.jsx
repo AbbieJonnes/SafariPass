@@ -21,6 +21,7 @@ function BrowseRoutes() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [paymentPending, setPaymentPending] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [subscriptionId, setSubscriptionId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,10 +78,11 @@ function BrowseRoutes() {
       plan_type: selectedPlan.id,
     })
       .then((res) => {
-        const subscriptionId = res.data.id;
+        const newSubscriptionId = res.data.id;
+        setSubscriptionId(newSubscriptionId);
         setPaymentPending(true);
         return axiosInstance.post('/payments/mpesa/initiate/', {
-          subscription: subscriptionId,
+          subscription: newSubscriptionId,
           phone_number: phoneNumber,
         });
       })
@@ -88,6 +90,7 @@ function BrowseRoutes() {
         setError('');
         setShowPaymentModal(true);
       })
+
       .catch(() => setError('Subscription or payment failed. Please try again.'))
       .finally(() => {
         setSubscribing(false);
@@ -243,7 +246,8 @@ function BrowseRoutes() {
 
       <PaymentModal
         open={showPaymentModal}
-        onClose={() => {
+        subscriptionId={subscriptionId}
+        onDone={() => {
           setShowPaymentModal(false);
           navigate('/passenger/dashboard');
         }}
