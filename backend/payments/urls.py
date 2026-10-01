@@ -4,6 +4,7 @@ from .views import (
     ValidationRecordListCreateView,
     InitiateMpesaPaymentView,
     MpesaCallbackView,
+    PaymentStatusView,
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('validations/', ValidationRecordListCreateView.as_view(), name='validation-list-create'),
     path('mpesa/initiate/', InitiateMpesaPaymentView.as_view(), name='mpesa-initiate'),
     path('mpesa-callback/', MpesaCallbackView.as_view(), name='mpesa-callback'),
+    path('status/', PaymentStatusView.as_view(), name='payment-status'),
 ]
