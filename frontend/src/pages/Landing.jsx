@@ -752,7 +752,7 @@ function Landing() {
           <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-400">
 
             <p>
-              © {new Date().getFullYear()} SafariPass. All rights reserved.
+             &copy; {new Date().getFullYear()} SafariPass. All rights reserved.
             </p>
 
             <p>
