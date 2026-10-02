@@ -22,6 +22,7 @@ function BrowseRoutes() {
   const [paymentPending, setPaymentPending] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [subscriptionId, setSubscriptionId] = useState(null);
+  const [expandedCompanyId, setExpandedCompanyId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -181,7 +182,7 @@ function BrowseRoutes() {
                 )}
               </div>
             )}
-            
+
             {step === 2 && (
               <div className="grid sm:grid-cols-2 gap-4">
                 {routes.map((route) => (
