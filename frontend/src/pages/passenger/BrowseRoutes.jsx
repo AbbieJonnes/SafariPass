@@ -131,29 +131,57 @@ function BrowseRoutes() {
           </div>
         ) : (
           <>
-            {step === 1 && (
-              <div className="grid sm:grid-cols-2 gap-4">
-                {companies.map((company) => (
-                  <button
-                    key={company.id}
-                    onClick={() => handleSelectCompany(company)}
-                    className="bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition text-left flex items-center gap-4"
-                  >
-                    <div className="bg-primary w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <FontAwesomeIcon icon={faBuilding} className="text-white" />
+                       {step === 1 && (
+              <div className="grid sm:grid-cols-2 gap-6">
+                {companies.map((company) => {
+                  const imageMap = {
+                    'SUPER METRO': '/images/super-metro.jpg',
+                    'Latema Travellers': '/images/latema.jpg',
+                  };
+                  const companyImage = imageMap[company.name]
+                    || 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80';
+                  const isExpanded = expandedCompanyId === company.id;
+
+                  return (
+                    <div key={company.id} className="bg-card rounded-2xl shadow-sm overflow-hidden">
+                      <img src={companyImage} alt={company.name} className="w-full h-36 object-cover" />
+                      <div className="p-5">
+                        <h3 className="font-semibold text-textdark text-lg mb-1">{company.name}</h3>
+                        <p className="text-sm text-gray-500 mb-3">{company.contact_email}</p>
+
+                        {isExpanded && (
+                          <div className="text-sm text-gray-500 mb-3 space-y-1 border-t border-gray-100 pt-3">
+                            <p><span className="font-medium text-textdark">Email:</span> {company.contact_email}</p>
+                            {company.contact_phone && (
+                              <p><span className="font-medium text-textdark">Phone:</span> {company.contact_phone}</p>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between mt-2">
+                          <button
+                            onClick={() => setExpandedCompanyId(isExpanded ? null : company.id)}
+                            className="text-sm text-gray-500 hover:text-primary transition underline"
+                          >
+                            {isExpanded ? 'Hide info' : 'More info'}
+                          </button>
+                          <button
+                            onClick={() => handleSelectCompany(company)}
+                            className="text-sm bg-primary text-white font-medium px-4 py-2 rounded-lg hover:opacity-90 transition"
+                          >
+                            Browse Routes
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-textdark">{company.name}</h3>
-                      <p className="text-sm text-gray-500">{company.contact_email}</p>
-                    </div>
-                  </button>
-                ))}
+                  );
+                })}
                 {companies.length === 0 && (
                   <p className="text-gray-400 col-span-2 text-center py-8">No companies available yet.</p>
                 )}
               </div>
             )}
-
+            
             {step === 2 && (
               <div className="grid sm:grid-cols-2 gap-4">
                 {routes.map((route) => (
