@@ -28,14 +28,22 @@ function Navbar() {
           <FontAwesomeIcon icon={faBusSimple} className="text-accent" />
           SafariPass
         </Link>
-        {!isOnDashboard && (
+        {/* {!isOnDashboard && (
           <Link
             to={dashboardPath}
             className="flex items-center gap-1 text-sm text-gray-300 hover:text-accent transition border-l border-white/20 pl-4"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back to Dashboard
           </Link>
-        )}
+        )} */}
+        {!isOnDashboard && (
+  <Link
+    to={dashboardPath}
+    className="flex items-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition border border-white/10 ml-2"
+  >
+    <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back to Dashboard
+  </Link>
+)}
       </div>
 
       <div className="flex items-center gap-4">
