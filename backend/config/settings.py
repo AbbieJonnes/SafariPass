@@ -218,3 +218,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
+
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
