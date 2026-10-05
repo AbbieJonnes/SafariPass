@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faArrowLeft,
   faRightFromBracket,
   faBusSimple,
   faCircleQuestion,
@@ -86,19 +85,14 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Back to Dashboard */}
+      {/* Back to Dashboard Button */}
       {!isOnDashboard && (
         <div className="bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
             <Link
               to={dashboardPath}
-              className="inline-flex items-center gap-2 bg-white border border-gray-200 text-primary hover:border-secondary hover:text-secondary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow transition"
+              className="inline-flex items-center justify-center bg-primary text-white hover:bg-primary/90 px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition"
             >
-              <FontAwesomeIcon
-                icon={faArrowLeft}
-                className="text-xs"
-              />
-
               Back to Dashboard
             </Link>
           </div>
