@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faXmark, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../api/axiosInstance';
+import { useAuth } from '../context/AuthContext';
 
 const pageLabels = {
   '/': 'the Landing page',
@@ -40,10 +41,17 @@ function ChatWidget() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, open]);
+
+  useEffect(() => {
+    setMessages([
+      { role: 'assistant', text: "Hi, I'm the SafariPass assistant. Ask me anything about using the app." },
+    ]);
+  }, [user?.id]);
 
   const handleSend = (e) => {
     e.preventDefault();
