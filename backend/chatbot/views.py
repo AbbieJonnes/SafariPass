@@ -24,29 +24,31 @@ class ChatView(APIView):
             "to validate active/expired/invalid), Company Admin (manages their company's routes, fares, "
             "plan types, and adds conductors), and Super Admin (creates companies and company admins). "
             f"The user is currently on: {page_context}. "
-            "Answer briefly and practically, guiding them on how to use SafariPass. "
-            "If asked something unrelated to SafariPass, politely redirect to what you can help with."
+            "Greet the user warmly if they say hello. Answer briefly and practically, guiding them on "
+            "how to use SafariPass. If asked something unrelated to SafariPass, politely redirect to "
+            "what you can help with."
         )
 
         try:
+            url = (
+                "https://generativelanguage.googleapis.com/v1beta/models/"
+                f"gemini-2.0-flash:generateContent?key={settings.GEMINI_API_KEY}"
+            )
             response = requests.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": settings.ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
+                url,
                 json={
-                    "model": "claude-sonnet-4-5",
-                    "max_tokens": 400,
-                    "system": system_prompt,
-                    "messages": [{"role": "user", "content": message}],
+                    "contents": [
+                        {"role": "user", "parts": [{"text": message}]}
+                    ],
+                    "systemInstruction": {
+                        "parts": [{"text": system_prompt}]
+                    },
                 },
                 timeout=20,
             )
             response.raise_for_status()
             data = response.json()
-            reply = data["content"][0]["text"]
+            reply = data["candidates"][0]["content"]["parts"][0]["text"]
             return Response({'reply': reply})
         except Exception as e:
             error_detail = getattr(e, 'response', None)
