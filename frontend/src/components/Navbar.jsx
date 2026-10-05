@@ -1,6 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faRightFromBracket, faBusSimple, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowLeft,
+  faRightFromBracket,
+  faBusSimple,
+  faCircleQuestion,
+} from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 
 const dashboardByRole = {
@@ -13,7 +18,11 @@ const dashboardByRole = {
 function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const dashboardPath = user ? dashboardByRole[user.role] : '/';
+
+  const dashboardPath = user
+    ? dashboardByRole[user.role]
+    : '/';
+
   const isOnDashboard = location.pathname === dashboardPath;
 
   const handleReplayTour = () => {
@@ -22,48 +31,82 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-primary shadow-md px-6 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-white">
-          <FontAwesomeIcon icon={faBusSimple} className="text-accent" />
-          SafariPass
-        </Link>
-        {/* {!isOnDashboard && (
-          <Link
-            to={dashboardPath}
-            className="flex items-center gap-1 text-sm text-gray-300 hover:text-accent transition border-l border-white/20 pl-4"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back to Dashboard
-          </Link>
-        )} */}
-        {!isOnDashboard && (
-  <Link
-    to={dashboardPath}
-    className="flex items-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition border border-white/10 ml-2"
-  >
-    <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back to Dashboard
-  </Link>
-)}
-      </div>
+    <>
+      {/* Main Navbar */}
+      <nav className="bg-primary shadow-md px-4 sm:px-6 py-3.5 sm:py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
 
-      <div className="flex items-center gap-4">
-        {user?.role === 'passenger' && isOnDashboard && (
-          <button
-            onClick={handleReplayTour}
-            className="flex items-center gap-1 text-sm text-accent hover:opacity-80 transition"
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 font-bold text-white text-base sm:text-lg"
           >
-            <FontAwesomeIcon icon={faCircleQuestion} /> Replay Tour
-          </button>
-        )}
-        <span className="text-sm text-gray-300 capitalize hidden sm:inline">
-          {user?.username} — {user?.role?.replace('_', ' ')}
-        </span>
-        <button onClick={logout} className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 transition">
-          <FontAwesomeIcon icon={faRightFromBracket} /> Logout
-        </button>
-      </div>
-    </nav>
+            <FontAwesomeIcon
+              icon={faBusSimple}
+              className="text-accent"
+            />
+            SafariPass
+          </Link>
+
+          {/* Right Side */}
+          <div className="flex items-center gap-3 sm:gap-4">
+
+            {/* Replay Tour */}
+            {user?.role === 'passenger' && isOnDashboard && (
+              <button
+                onClick={handleReplayTour}
+                className="flex items-center gap-1.5 text-xs sm:text-sm text-accent hover:text-white transition"
+              >
+                <FontAwesomeIcon icon={faCircleQuestion} />
+
+                <span className="hidden sm:inline">
+                  Replay Tour
+                </span>
+              </button>
+            )}
+
+            {/* User */}
+            <span className="text-sm text-gray-300 capitalize hidden md:inline">
+              {user?.username} — {user?.role?.replace('_', ' ')}
+            </span>
+
+            {/* Logout */}
+            <button
+              onClick={logout}
+              className="flex items-center gap-1.5 text-xs sm:text-sm text-red-400 hover:text-red-300 transition font-medium"
+            >
+              <FontAwesomeIcon icon={faRightFromBracket} />
+
+              <span className="hidden sm:inline">
+                Logout
+              </span>
+            </button>
+
+          </div>
+        </div>
+      </nav>
+
+      {/* Back to Dashboard */}
+      {!isOnDashboard && (
+        <div className="bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
+            <Link
+              to={dashboardPath}
+              className="inline-flex items-center gap-2 bg-white border border-gray-200 text-primary hover:border-secondary hover:text-secondary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow transition"
+            >
+              <FontAwesomeIcon
+                icon={faArrowLeft}
+                className="text-xs"
+              />
+
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
 export default Navbar;
+
