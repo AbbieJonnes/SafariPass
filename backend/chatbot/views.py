@@ -32,7 +32,7 @@ class ChatView(APIView):
         try:
             url = (
                 "https://generativelanguage.googleapis.com/v1beta/models/"
-                f"gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+                f"gemini-3.8-flash:generateContent?key={settings.GEMINI_API_KEY}"
             )
             response = requests.post(
                 url,
