@@ -51,7 +51,7 @@ function ChatWidget() {
     setMessages([
       { role: 'assistant', text: "Hi, I'm the SafariPass assistant. Ask me anything about using the app." },
     ]);
-  }, [user?.id]);
+  }, [user?.username]);
 
   const handleSend = (e) => {
     e.preventDefault();
