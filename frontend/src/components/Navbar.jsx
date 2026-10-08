@@ -14,7 +14,7 @@ const dashboardByRole = {
   super_admin: '/super-admin/dashboard',
 };
 
-function Navbar() {
+function Navbar({ hideBack = false }) {
   const { user, logout } = useAuth();
   const location = useLocation();
 
@@ -86,7 +86,7 @@ function Navbar() {
       </nav>
 
       {/* Back to Dashboard Button */}
-      {!isOnDashboard && (
+      {!isOnDashboard && !hideBack && (
         <div className="bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
             <Link
