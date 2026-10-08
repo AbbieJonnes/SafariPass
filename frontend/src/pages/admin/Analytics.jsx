@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBillWave, faUsers, faRoute, faQrcode } from '@fortawesome/free-solid-svg-icons';
-import Navbar from '../../components/Navbar';
+import AdminLayout from '../../components/AdminLayout';
+import { companyAdminNav, superAdminNav } from '../../components/adminNav';
+import { useAuth } from '../../context/AuthContext';
 import axiosInstance from '../../api/axiosInstance';
 
 function Analytics({ title = 'Analytics', subtitle = 'Overview of your performance.' }) {
+  const { user } = useAuth();
+  const isSuper = user?.role === 'super_admin';
+  const navItems = isSuper ? superAdminNav : companyAdminNav;
+  const layoutTitle = isSuper ? 'Platform Administration' : 'Company Administration';
+
   const [revenue, setRevenue] = useState(null);
   const [activeSubs, setActiveSubs] = useState(null);
   const [routePopularity, setRoutePopularity] = useState([]);
@@ -32,49 +39,46 @@ function Analytics({ title = 'Analytics', subtitle = 'Overview of your performan
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold text-primary mb-1">{title}</h1>
-        <p className="text-gray-500 mb-6">{subtitle}</p>
+    <AdminLayout title={layoutTitle} navItems={navItems}>
+      <h1 className="text-2xl font-bold text-primary mb-1">{title}</h1>
+      <p className="text-gray-500 mb-6">{subtitle}</p>
 
-        {loading ? (
-          <p className="text-gray-400 text-center py-8">Loading...</p>
-        ) : (
-          <>
-            <div className="grid sm:grid-cols-3 gap-6 mb-8">
-              {cards.map((c) => (
-                <div key={c.label} className="bg-card rounded-2xl p-6 shadow-sm">
-                  <div className={`${c.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
-                    <FontAwesomeIcon icon={c.icon} className="text-white text-xl" />
-                  </div>
-                  <p className="text-2xl font-bold text-primary">{c.value}</p>
-                  <p className="text-sm text-gray-500">{c.label}</p>
+      {loading ? (
+        <p className="text-gray-400 text-center py-8">Loading...</p>
+      ) : (
+        <>
+          <div className="grid sm:grid-cols-3 gap-6 mb-8">
+            {cards.map((c) => (
+              <div key={c.label} className="bg-card rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className={`${c.color} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
+                  <FontAwesomeIcon icon={c.icon} className="text-white text-xl" />
+                </div>
+                <p className="text-2xl font-bold text-primary">{c.value}</p>
+                <p className="text-sm text-gray-500">{c.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="font-semibold text-textdark mb-3 flex items-center gap-2">
+            <FontAwesomeIcon icon={faRoute} /> Route Popularity
+          </h3>
+          {routePopularity.length === 0 ? (
+            <p className="text-gray-400">No boarding scans recorded yet.</p>
+          ) : (
+            <div className="grid lg:grid-cols-2 gap-3">
+              {routePopularity.map((r) => (
+                <div key={r.subscription__route__id} className="bg-card rounded-xl border border-gray-100 p-4 shadow-sm flex justify-between text-sm">
+                  <span className="text-textdark">
+                    {r.subscription__route__origin} → {r.subscription__route__destination}
+                  </span>
+                  <span className="font-semibold text-primary">{r.validation_count} scans</span>
                 </div>
               ))}
             </div>
-
-            <h3 className="font-semibold text-textdark mb-3 flex items-center gap-2">
-              <FontAwesomeIcon icon={faRoute} /> Route Popularity
-            </h3>
-            {routePopularity.length === 0 ? (
-              <p className="text-gray-400">No boarding scans recorded yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {routePopularity.map((r) => (
-                  <div key={r.subscription__route__id} className="bg-card rounded-xl p-4 shadow-sm flex justify-between text-sm">
-                    <span className="text-textdark">
-                      {r.subscription__route__origin} → {r.subscription__route__destination}
-                    </span>
-                    <span className="font-semibold text-primary">{r.validation_count} scans</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+          )}
+        </>
+      )}
+    </AdminLayout>
   );
 }
 
