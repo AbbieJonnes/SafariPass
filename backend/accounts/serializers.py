@@ -105,3 +105,8 @@ class UserListSerializer(serializers.ModelSerializer):
 
     def get_company_name(self, obj):
         return obj.company.name if obj.company else None
+
+class ConductorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'is_active']
