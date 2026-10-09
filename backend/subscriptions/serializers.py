@@ -40,6 +40,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         from companies.serializers import RouteSerializer
         data = super().to_representation(instance)
         data['route'] = RouteSerializer(instance.route).data
+        data['passenger_username'] = instance.passenger.username
+        if instance.plan_type:
+            data['plan_label'] = f"{instance.plan_type.get_plan_category_display()} — {instance.plan_type.get_duration_display()}"
+        else:
+            data['plan_label'] = ''
         return data
 
 class RouteShiftSerializer(serializers.ModelSerializer):
