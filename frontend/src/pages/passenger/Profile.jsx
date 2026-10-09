@@ -52,6 +52,7 @@ function Profile() {
       .then((res) => {
         setProfile(res.data);
         setMessage('Profile updated successfully.');
+        window.dispatchEvent(new Event('profile-updated'));
       })
       .catch(() => setMessage('Could not update profile.'))
       .finally(() => setSaving(false));
