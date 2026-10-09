@@ -19,6 +19,9 @@ from .serializers import ProfileSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
+from .permissions import IsCompanyAdmin
+from .serializers import ConductorSerializer
+
 from .models import User, NotificationLog
 from .serializers import (
     UserSerializer,
@@ -215,3 +218,25 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all().order_by('-id')
     serializer_class = UserListSerializer
     permission_classes = [IsSuperAdmin]
+
+class ConductorListView(generics.ListAPIView):
+    serializer_class = ConductorSerializer
+    permission_classes = [IsCompanyAdmin]
+
+    def get_queryset(self):
+        company = self.request.user.company
+        if not company:
+            return User.objects.none()
+        return User.objects.filter(role='conductor', company=company).order_by('-id')
+
+
+class ConductorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ConductorSerializer
+    permission_classes = [IsCompanyAdmin]
+    http_method_names = ['get', 'patch', 'delete']
+
+    def get_queryset(self):
+        company = self.request.user.company
+        if not company:
+            return User.objects.none()
+        return User.objects.filter(role='conductor', company=company)
