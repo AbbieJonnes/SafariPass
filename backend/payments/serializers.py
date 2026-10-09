@@ -33,22 +33,26 @@ class ValidationRecordSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         qr_token = validated_data.pop('qr_token')
         try:
-            subscription = Subscription.objects.get(qr_token=qr_token)
+            subscription = Subscription.objects.get(qr_token=str(qr_token))
         except Subscription.DoesNotExist:
             raise serializers.ValidationError({'qr_token': 'No subscription found for this QR code.'})
 
         now = timezone.now()
-        today = now.date()
 
-        if subscription.status != 'active':
-            result = 'invalid'
-        elif subscription.expiry_date < today:
+        if subscription.expiry_date < now:
             result = 'expired'
+        elif subscription.status != 'active':
+            result = 'invalid'
         else:
             plan = subscription.plan_type
-            if plan.plan_category == 'peak' and plan.peak_start_time and plan.peak_end_time:
-                current_time = now.time()
-                result = 'active' if plan.peak_start_time <= current_time <= plan.peak_end_time else 'invalid'
+            if plan and plan.plan_category == 'peak' and plan.peak_start_time and plan.peak_end_time:
+                current = timezone.localtime(now).time()
+                start, end = plan.peak_start_time, plan.peak_end_time
+                if start <= end:
+                    in_window = start <= current <= end
+                else:
+                    in_window = current >= start or current <= end
+                result = 'active' if in_window else 'invalid'
             else:
                 result = 'active'
 
