@@ -27,7 +27,7 @@ function RouteShift() {
     ])
       .then(([subsRes, routesRes, shiftsRes]) => {
         if (subsRes.data.length > 0) {
-          setSubscription(subsRes.data[subsRes.data.length - 1]);
+          setSubscription(subsRes.data[0]);
         }
 
         setRoutes(routesRes.data);
@@ -90,11 +90,9 @@ function RouteShift() {
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-
         {/* Page Header */}
         <div className="mb-7 sm:mb-8">
           <div className="flex items-start gap-3">
-
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <FontAwesomeIcon
                 icon={faRoute}
@@ -112,7 +110,6 @@ function RouteShift() {
                 subscription.
               </p>
             </div>
-
           </div>
         </div>
 
@@ -167,7 +164,6 @@ function RouteShift() {
               </div>
             ) : (
               <div className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm mb-8">
-
                 <div className="mb-5">
                   <h2 className="text-base font-semibold text-textdark">
                     Choose a temporary route
@@ -198,7 +194,6 @@ function RouteShift() {
                         }`}
                       >
                         <div className="flex items-center justify-between gap-3">
-
                           <div className="flex items-start gap-3 min-w-0">
                             <div
                               className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
@@ -239,7 +234,6 @@ function RouteShift() {
                               className="text-secondary shrink-0"
                             />
                           )}
-
                         </div>
                       </button>
                     ))}
@@ -264,7 +258,6 @@ function RouteShift() {
                     </>
                   )}
                 </button>
-
               </div>
             )}
 
@@ -303,7 +296,6 @@ function RouteShift() {
                       className="bg-card rounded-xl p-4 sm:p-5 shadow-sm"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-
                         <div>
                           <p className="text-sm font-medium text-textdark">
                             Route shift
@@ -326,7 +318,6 @@ function RouteShift() {
                         >
                           {shift.reverted ? 'Reverted' : 'Active'}
                         </span>
-
                       </div>
 
                       {shift.extra_amount_paid > 0 && (
@@ -344,7 +335,6 @@ function RouteShift() {
                 </div>
               )}
             </section>
-
           </>
         )}
       </main>
