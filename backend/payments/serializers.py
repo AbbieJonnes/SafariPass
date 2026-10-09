@@ -25,7 +25,10 @@ class ValidationRecordSerializer(serializers.ModelSerializer):
         return f"{obj.subscription.route.origin} to {obj.subscription.route.destination}"
 
     def get_plan_type(self, obj):
-        return f"{obj.subscription.plan_type.plan_category} ({obj.subscription.plan_type.duration})"
+        plan = obj.subscription.plan_type
+        if not plan:
+            return "No plan"
+        return f"{plan.plan_category} ({plan.duration})"
 
     def get_passenger_username(self, obj):
         return obj.subscription.passenger.username
@@ -55,6 +58,10 @@ class ValidationRecordSerializer(serializers.ModelSerializer):
                 result = 'active' if in_window else 'invalid'
             else:
                 result = 'active'
+
+        if result == 'expired' and subscription.status == 'active':
+            from subscriptions.tasks import expire_subscription
+            expire_subscription(subscription)
 
         return ValidationRecord.objects.create(
             subscription=subscription,
