@@ -10,6 +10,8 @@ from .views import (
     PasswordResetConfirmView,
     ProfileView,
     UserListView,
+    ConductorListView,
+    ConductorDetailView,
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('users/', UserListView.as_view(), name='user-list'),
+    path('conductors/', ConductorListView.as_view(), name='conductor-list'),
+    path('conductors/<int:pk>/', ConductorDetailView.as_view(), name='conductor-detail'),
 ]
