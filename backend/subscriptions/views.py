@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .tasks import check_unused_days_rollover, revert_expired_route_shifts, send_expiry_warnings
+from .tasks import check_unused_days_rollover, revert_expired_route_shifts, send_expiry_warnings, send_expired_notices
 from rest_framework import generics
 from .models import Subscription, RouteShift
 from .serializers import SubscriptionSerializer, RouteShiftSerializer
@@ -16,6 +16,7 @@ class RunDailyChecksView(APIView):
         if secret != settings.CRON_SECRET:
             return Response({'error': 'Unauthorized'}, status=403)
 
+        send_expired_notices()
         check_unused_days_rollover()
         revert_expired_route_shifts()
         send_expiry_warnings()
