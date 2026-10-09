@@ -28,7 +28,7 @@ function Profile() {
     });
 
     axiosInstance.get('/subscriptions/').then((res) => {
-      if (res.data.length > 0) setSubscription(res.data[res.data.length - 1]);
+      if (res.data.length > 0) setSubscription(res.data[0]);
     });
   }, []);
 
@@ -204,3 +204,4 @@ function Profile() {
 }
 
 export default Profile;
+
