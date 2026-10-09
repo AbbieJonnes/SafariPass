@@ -6,10 +6,10 @@ function AdminLayout({ title, navItems, children }) {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen flex flex-col bg-background">
       <Navbar hideBack />
 
-      <div className="md:hidden bg-primary px-4 py-2 flex gap-2 overflow-x-auto">
+      <div className="md:hidden bg-primary px-4 py-2 flex gap-2 overflow-x-auto flex-shrink-0">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -26,8 +26,8 @@ function AdminLayout({ title, navItems, children }) {
         })}
       </div>
 
-      <div className="flex min-h-[calc(100vh-90px)]">
-        <aside className="w-64 bg-primary text-white flex-shrink-0 hidden md:block">
+      <div className="flex flex-1 min-h-0">
+        <aside className="w-64 bg-primary text-white flex-shrink-0 hidden md:block overflow-y-auto">
           <div className="p-6">
             <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-4">
               {title}
@@ -54,7 +54,7 @@ function AdminLayout({ title, navItems, children }) {
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 px-6 lg:px-10 py-10">
+        <main className="flex-1 min-w-0 overflow-y-auto px-6 lg:px-10 py-10">
           {children}
         </main>
       </div>
