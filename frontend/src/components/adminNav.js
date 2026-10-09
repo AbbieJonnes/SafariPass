@@ -15,7 +15,7 @@ export const companyAdminNav = [
   { label: 'Manage Routes', to: '/admin/routes', icon: faRoute },
   { label: 'Manage Fares', to: '/admin/fares', icon: faTag },
   { label: 'Plan Types', to: '/admin/plan-types', icon: faLayerGroup },
-  { label: 'Add Conductor', to: '/admin/add-conductor', icon: faUserPlus },
+  { label: 'Conductors', to: '/admin/add-conductor', icon: faUserPlus },
   { label: 'Subscriptions', to: '/admin/subscriptions', icon: faUsers },
   { label: 'Analytics', to: '/admin/analytics', icon: faChartLine },
 ];
