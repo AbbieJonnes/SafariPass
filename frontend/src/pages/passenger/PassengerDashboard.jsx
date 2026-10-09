@@ -23,7 +23,7 @@ function PassengerDashboard() {
       .get('/subscriptions/')
       .then((res) => {
         if (res.data.length > 0) {
-          setSubscription(res.data[res.data.length - 1]);
+          setSubscription(res.data[0]);
         }
       })
       .finally(() => setLoading(false));
@@ -87,7 +87,6 @@ function PassengerDashboard() {
         <PassengerTour />
 
         <div className="max-w-2xl mx-auto px-6 py-16 text-center tour-welcome">
-
           <div className="bg-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <FontAwesomeIcon
               icon={faRoute}
@@ -115,7 +114,6 @@ function PassengerDashboard() {
             Browse Routes
             <FontAwesomeIcon icon={faArrowRight} />
           </Link>
-
         </div>
       </div>
     );
@@ -128,15 +126,12 @@ function PassengerDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-
       <Navbar />
       <PassengerTour />
 
       <div className="max-w-6xl mx-auto px-6 py-10">
-
         {/* Welcome Header */}
         <div className="mb-8 tour-welcome">
-
           <p className="text-secondary text-sm font-semibold mb-2">
             Passenger Dashboard
           </p>
@@ -148,16 +143,12 @@ function PassengerDashboard() {
           <p className="text-gray-500">
             Here's your SafariPass account at a glance.
           </p>
-
         </div>
 
         {/* Active Subscription */}
         <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
-
           <div className="flex items-center justify-between flex-wrap gap-5">
-
             <div className="flex items-center gap-4">
-
               <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
                 <FontAwesomeIcon
                   icon={faCircleCheck}
@@ -182,7 +173,6 @@ function PassengerDashboard() {
                   </span>
                 </p>
               </div>
-
             </div>
 
             <Link
@@ -195,21 +185,17 @@ function PassengerDashboard() {
                 className="text-xs"
               />
             </Link>
-
           </div>
-
         </div>
 
         {/* Dashboard Actions */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
           {cards.map((card) => (
             <Link
               key={card.title}
               to={card.to}
               className={`bg-card rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group ${card.tourClass}`}
             >
-
               <div
                 className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-5`}
               >
@@ -234,12 +220,9 @@ function PassengerDashboard() {
                   className="text-xs group-hover:translate-x-1 transition"
                 />
               </span>
-
             </Link>
           ))}
-
         </div>
-
       </div>
     </div>
   );
