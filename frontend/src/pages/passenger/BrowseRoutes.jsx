@@ -280,6 +280,7 @@ function BrowseRoutes() {
           setShowPaymentModal(false);
           navigate('/passenger/dashboard');
         }}
+        onRetry={() => setShowPaymentModal(false)}
       />
     </div>
   );
