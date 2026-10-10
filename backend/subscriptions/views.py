@@ -32,10 +32,11 @@ class SubscriptionListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        unpaid = ['pending', 'payment_failed']
         if user.role == 'passenger':
-            return Subscription.objects.filter(passenger=user).order_by('-start_date')
+            return Subscription.objects.filter(passenger=user).exclude(status__in=unpaid).order_by('-start_date')
         if user.role == 'company_admin':
-            return Subscription.objects.filter(route__company=user.company).order_by('-start_date')
+            return Subscription.objects.filter(route__company=user.company).exclude(status__in=unpaid).order_by('-start_date')
         return Subscription.objects.all().order_by('-start_date')
 
     def perform_create(self, serializer):
