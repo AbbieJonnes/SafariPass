@@ -5,6 +5,8 @@ from companies.models import Route, PlanType
 
 class Subscription(models.Model):
     STATUS_CHOICES = [
+        ('pending', 'Pending payment'),
+        ('payment_failed', 'Payment failed'),
         ('active', 'Active'),
         ('expired', 'Expired'),
         ('switched', 'Switched'),
