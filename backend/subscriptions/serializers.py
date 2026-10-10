@@ -33,6 +33,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             price_paid=price_paid,
             expiry_date=expiry_date,
             qr_token=str(uuid.uuid4()),
+            status='pending',
         )
         return subscription
     
