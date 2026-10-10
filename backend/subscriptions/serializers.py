@@ -57,6 +57,9 @@ class RouteShiftSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         subscription = validated_data['subscription']
 
+        if subscription.status != 'active':
+            raise serializers.ValidationError({'detail': 'Route shifts are only available on an active, paid subscription.'})
+
         if subscription.shift_count >= 3:
             raise serializers.ValidationError({'detail': 'You have used all 3 route shifts for this subscription.'})
 
