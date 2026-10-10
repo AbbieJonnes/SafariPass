@@ -159,27 +159,28 @@ class PasswordResetRequestView(APIView):
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response({'detail': 'If that email exists, a reset link has been sent.'})
+        for user in User.objects.filter(email__iexact=email, is_active=True):
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
-
-        try:
-            send_mail(
-                subject='SafariPass Password Reset',
-                message=f'Use this link to reset your password: {reset_link}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-            )
-        except Exception as e:
-            print(f"Failed to send password reset email to {email}: {e}")
+            try:
+                send_mail(
+                    subject='SafariPass Password Reset',
+                    message=(
+                        f"Hi {user.username},\n\n"
+                        f"Use this link to reset the password for your SafariPass account '{user.username}':\n"
+                        f"{reset_link}\n\n"
+                        f"If you didn't ask for this, you can ignore this email.\n\n"
+                        f"— SafariPass"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
+            except Exception as e:
+                print(f"Failed to send password reset email to {user.email}: {e}")
 
         return Response({'detail': 'If that email exists, a reset link has been sent.'})
-
 
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
