@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMobileScreenButton, faCircleCheck, faCircleXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../api/axiosInstance';
 
-function PaymentModal({ open, subscriptionId, onDone }) {
+function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
   const [status, setStatus] = useState('pending');
   const pollRef = useRef(null);
   const attemptsRef = useRef(0);
@@ -52,28 +52,24 @@ function PaymentModal({ open, subscriptionId, onDone }) {
       iconClass: 'text-primary animate-spin',
       title: 'Check your phone',
       message: 'A Lipa Na M-Pesa prompt has been sent. Enter your M-Pesa PIN to complete the payment.',
-      showButton: false,
     },
     success: {
       icon: faCircleCheck,
       iconClass: 'text-green-600',
       title: 'Payment successful',
       message: 'Your subscription is now active. A confirmation email with your journey tracking link is on its way.',
-      showButton: true,
     },
     failed: {
       icon: faCircleXmark,
       iconClass: 'text-red-600',
       title: 'Payment failed',
-      message: 'Your payment did not go through. You can try subscribing again from Browse Routes.',
-      showButton: true,
+      message: 'Your payment did not go through, so no subscription was activated. You can try again.',
     },
     timeout: {
       icon: faMobileScreenButton,
       iconClass: 'text-gray-400',
       title: 'Still waiting',
       message: "We haven't heard back yet. Check Payment History shortly to confirm whether it went through.",
-      showButton: true,
     },
   }[status];
 
@@ -85,12 +81,31 @@ function PaymentModal({ open, subscriptionId, onDone }) {
         </div>
         <h3 className="text-lg font-bold text-primary mb-2">{content.title}</h3>
         <p className="text-gray-500 text-sm mb-6">{content.message}</p>
-        {content.showButton && (
-          <button
-            onClick={onDone}
-            className="w-full bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition"
-          >
-            Okay
+
+        {status === 'success' && (
+          <button onClick={onDone}
+            className="w-full bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
+            Go to my dashboard
+          </button>
+        )}
+
+        {status === 'failed' && (
+          <div className="flex gap-3">
+            <button onClick={onDone}
+              className="flex-1 border border-gray-300 text-textdark font-medium py-2.5 rounded-lg hover:bg-gray-50 transition">
+              Back to dashboard
+            </button>
+            <button onClick={onRetry}
+              className="flex-1 bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
+              Try again
+            </button>
+          </div>
+        )}
+
+        {status === 'timeout' && (
+          <button onClick={onDone}
+            className="w-full bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
+            Back to dashboard
           </button>
         )}
       </div>
