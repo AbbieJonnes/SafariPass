@@ -28,23 +28,28 @@ def expire_subscription(sub):
     sub.status = 'expired'
     sub.save()
 
-    if sub.passenger.email:
-        try:
-            send_mail(
-                subject="Your SafariPass subscription has expired",
-                message=(
-                    f"Hi {sub.passenger.username},\n\n"
-                    f"Your subscription on {sub.route.origin} → {sub.route.destination} "
-                    f"expired on {_fmt(sub.expiry_date)}.\n\n"
-                    f"Renew from Browse Routes to keep riding:\n"
-                    f"{settings.FRONTEND_URL}/passenger/browse\n\n"
-                    f"— SafariPass"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[sub.passenger.email],
-            )
-        except Exception as e:
-            print(f"Failed to send expired notice to {sub.passenger.email}: {e}")
+    email = sub.passenger.email
+    if not email:
+        print(f"Subscription {sub.id} expired, but {sub.passenger.username} has no email on file.")
+        return
+
+    try:
+        send_mail(
+            subject="Your SafariPass subscription has expired",
+            message=(
+                f"Hi {sub.passenger.username},\n\n"
+                f"Your subscription on {sub.route.origin} → {sub.route.destination} "
+                f"expired on {_fmt(sub.expiry_date)}.\n\n"
+                f"Renew from Browse Routes to keep riding:\n"
+                f"{settings.FRONTEND_URL}/passenger/browse\n\n"
+                f"— SafariPass"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+        )
+        print(f"Expiry email sent to {email} for subscription {sub.id}")
+    except Exception as e:
+        print(f"Failed to send expired notice to {email}: {e}")
 
 
 @shared_task
