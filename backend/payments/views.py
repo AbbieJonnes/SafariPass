@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils import timezone
 from .models import Payment, ValidationRecord
 from .serializers import PaymentSerializer, ValidationRecordSerializer
 from .mpesa import initiate_stk_push
@@ -48,7 +49,7 @@ class InitiateMpesaPaymentView(APIView):
         phone_number = request.data.get('phone_number')
 
         try:
-            subscription = Subscription.objects.get(id=subscription_id)
+            subscription = Subscription.objects.get(id=subscription_id, passenger=request.user)
         except Subscription.DoesNotExist:
             return Response({'error': 'Subscription not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -66,6 +67,7 @@ class InitiateMpesaPaymentView(APIView):
         )
 
         return Response(result, status=status.HTTP_200_OK)
+
 
 class PaymentStatusView(APIView):
     permission_classes = [IsAuthenticated]
@@ -96,46 +98,60 @@ class MpesaCallbackView(APIView):
         except Payment.DoesNotExist:
             return Response({'error': 'Payment record not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        subscription = payment.subscription
+        passenger = subscription.passenger
+
         if result_code == 0:
             payment.status = 'success'
             payment.save()
 
-            subscription = payment.subscription
-            passenger = subscription.passenger
+            subscription.status = 'active'
+            subscription.save()
+
             if passenger.email:
-                send_mail(
-                    subject="Payment Successful — SafariPass",
-                    message=(
-                        f"Hi {passenger.username},\n\n"
-                        f"Your payment of KES {payment.amount} was successful.\n\n"
-                        f"Your subscription is now active on {subscription.route.origin} → {subscription.route.destination}, "
-                        f"valid from {subscription.start_date.strftime('%d %b %Y')} to {subscription.expiry_date.strftime('%d %b %Y')}.\n\n"
-                        f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
-                        f"If you ever need to temporarily switch routes, you can request a Route Shift from your account — "
-                        f"it's free if the new route is the same price or cheaper, or you'll just pay the small difference if it's more expensive. "
-                        f"Your pass automatically switches back to your original route once the shift period ends.\n\n"
-                        f"Ride safe!\n— SafariPass"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[passenger.email],
-                )
+                start = timezone.localtime(subscription.start_date).strftime('%d %b %Y')
+                end = timezone.localtime(subscription.expiry_date).strftime('%d %b %Y')
+                try:
+                    send_mail(
+                        subject="Payment Successful — SafariPass",
+                        message=(
+                            f"Hi {passenger.username},\n\n"
+                            f"Your payment of KES {payment.amount} was successful.\n\n"
+                            f"Your subscription is now active on {subscription.route.origin} → {subscription.route.destination}, "
+                            f"valid from {start} to {end}.\n\n"
+                            f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
+                            f"If you ever need to temporarily switch routes, you can request a Route Shift from your account — "
+                            f"it's free if the new route is the same price or cheaper, or you'll just pay the small difference if it's more expensive. "
+                            f"Your pass automatically switches back to your original route once the shift period ends.\n\n"
+                            f"Ride safe!\n— SafariPass"
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[passenger.email],
+                    )
+                except Exception as e:
+                    print(f"Failed to send payment success email to {passenger.email}: {e}")
         else:
             payment.status = 'failed'
             payment.save()
 
-            subscription = payment.subscription
-            passenger = subscription.passenger
+            subscription.status = 'payment_failed'
+            subscription.save()
+
             if passenger.email:
-                send_mail(
-                    subject="Payment Not Completed — SafariPass",
-                    message=(
-                        f"Hi {passenger.username},\n\n"
-                        f"Your payment of KES {payment.amount} was not completed.\n\n"
-                        f"You can try subscribing again from Browse Routes.\n\n"
-                        f"— SafariPass"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[passenger.email],
-                )
+                try:
+                    send_mail(
+                        subject="Payment Not Completed — SafariPass",
+                        message=(
+                            f"Hi {passenger.username},\n\n"
+                            f"Your payment of KES {payment.amount} was not completed.\n\n"
+                            f"You can try subscribing again from Browse Routes:\n"
+                            f"{settings.FRONTEND_URL}/passenger/browse\n\n"
+                            f"— SafariPass"
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[passenger.email],
+                    )
+                except Exception as e:
+                    print(f"Failed to send payment failure email to {passenger.email}: {e}")
 
         return Response({'ResultCode': 0, 'ResultDesc': 'Accepted'})
