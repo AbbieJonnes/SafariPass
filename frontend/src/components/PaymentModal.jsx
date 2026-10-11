@@ -3,7 +3,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMobileScreenButton, faCircleCheck, faCircleXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../api/axiosInstance';
 
-function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
+const TEXT = {
+  subscription: {
+    pending: 'A Lipa Na M-Pesa prompt has been sent. Enter your M-Pesa PIN to complete the payment.',
+    success: 'Your subscription is now active. A confirmation email with your journey tracking link is on its way.',
+    failed: 'Your payment did not go through, so no subscription was activated. You can try again.',
+    successButton: 'Go to my dashboard',
+    closeButton: 'Back to dashboard',
+  },
+  shift: {
+    pending: 'A Lipa Na M-Pesa prompt has been sent for the extra fare. Enter your M-Pesa PIN to start your route shift.',
+    success: 'Your route shift is now active. A confirmation email with your journey tracking link is on its way.',
+    failed: 'Your payment did not go through, so your pass stays on its original route. You can try again.',
+    successButton: 'Done',
+    closeButton: 'Close',
+  },
+};
+
+function PaymentModal({ open, subscriptionId, kind = 'subscription', onDone, onRetry }) {
   const [status, setStatus] = useState('pending');
   const pollRef = useRef(null);
   const attemptsRef = useRef(0);
@@ -46,24 +63,26 @@ function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
 
   if (!open) return null;
 
+  const words = TEXT[kind] || TEXT.subscription;
+
   const content = {
     pending: {
       icon: faSpinner,
       iconClass: 'text-primary animate-spin',
       title: 'Check your phone',
-      message: 'A Lipa Na M-Pesa prompt has been sent. Enter your M-Pesa PIN to complete the payment.',
+      message: words.pending,
     },
     success: {
       icon: faCircleCheck,
       iconClass: 'text-green-600',
       title: 'Payment successful',
-      message: 'Your subscription is now active. A confirmation email with your journey tracking link is on its way.',
+      message: words.success,
     },
     failed: {
       icon: faCircleXmark,
       iconClass: 'text-red-600',
       title: 'Payment failed',
-      message: 'Your payment did not go through, so no subscription was activated. You can try again.',
+      message: words.failed,
     },
     timeout: {
       icon: faMobileScreenButton,
@@ -85,7 +104,7 @@ function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
         {status === 'success' && (
           <button onClick={onDone}
             className="w-full bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
-            Go to my dashboard
+            {words.successButton}
           </button>
         )}
 
@@ -93,7 +112,7 @@ function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
           <div className="flex gap-3">
             <button onClick={onDone}
               className="flex-1 border border-gray-300 text-textdark font-medium py-2.5 rounded-lg hover:bg-gray-50 transition">
-              Back to dashboard
+              {words.closeButton}
             </button>
             <button onClick={onRetry}
               className="flex-1 bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
@@ -105,7 +124,7 @@ function PaymentModal({ open, subscriptionId, onDone, onRetry }) {
         {status === 'timeout' && (
           <button onClick={onDone}
             className="w-full bg-primary text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
-            Back to dashboard
+            {words.closeButton}
           </button>
         )}
       </div>
