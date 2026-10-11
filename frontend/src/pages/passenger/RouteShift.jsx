@@ -8,36 +8,79 @@ import {
   faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../../components/Navbar';
+import PaymentModal from '../../components/PaymentModal';
 import axiosInstance from '../../api/axiosInstance';
 
 function RouteShift() {
   const [subscription, setSubscription] = useState(null);
   const [routes, setRoutes] = useState([]);
+  const [fares, setFares] = useState([]);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [shifts, setShifts] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('info');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  useEffect(() => {
+  const showMessage = (text, type = 'info') => {
+    setMessage(text);
+    setMessageType(type);
+  };
+
+  const loadData = () =>
     Promise.all([
       axiosInstance.get('/subscriptions/'),
       axiosInstance.get('/companies/routes/'),
+      axiosInstance.get('/companies/fares/'),
       axiosInstance.get('/subscriptions/shifts/'),
-    ])
-      .then(([subsRes, routesRes, shiftsRes]) => {
-        if (subsRes.data.length > 0) {
-          setSubscription(subsRes.data[0]);
-        }
+    ]).then(([subsRes, routesRes, faresRes, shiftsRes]) => {
+      const list = subsRes.data;
+      const activeOne = list.find(
+        (s) => s.status === 'active' && new Date(s.expiry_date) > new Date()
+      );
+      setSubscription(activeOne || list[0] || null);
+      setRoutes(routesRes.data);
+      setFares(faresRes.data);
+      setShifts(shiftsRes.data);
+    });
 
-        setRoutes(routesRes.data);
-        setShifts(shiftsRes.data);
-      })
-      .finally(() => setLoading(false));
+  useEffect(() => {
+    loadData().finally(() => setLoading(false));
   }, []);
+
+  const dailyRate = (routeId) => {
+    const fare = fares.find((f) => f.route === routeId && !f.effective_to);
+    if (!fare) return 0;
+    const morning = parseFloat(fare.price);
+    const evening = fare.evening_price != null ? parseFloat(fare.evening_price) : morning;
+    return morning + evening;
+  };
+
+  const currentRouteId = subscription
+    ? typeof subscription.route === 'object'
+      ? subscription.route.id
+      : subscription.route
+    : null;
+
+  const remainingDays = subscription
+    ? Math.max(1, Math.ceil((new Date(subscription.expiry_date) - new Date()) / 86400000))
+    : 0;
+
+  const extraFor = (route) => {
+    const gap = dailyRate(route.id) - dailyRate(currentRouteId);
+    return gap > 0 ? Math.ceil(Number((gap * remainingDays).toFixed(2))) : 0;
+  };
 
   const handleShift = () => {
     if (!selectedRoute || !subscription) return;
+
+    const extra = extraFor(selectedRoute);
+    if (extra > 0 && !phoneNumber.trim()) {
+      showMessage('Enter your M-Pesa phone number to pay the extra fare.', 'info');
+      return;
+    }
 
     setSubmitting(true);
     setMessage('');
@@ -48,15 +91,29 @@ function RouteShift() {
         temporary_route: selectedRoute.id,
       })
       .then((res) => {
-        setMessage('Route shift started successfully.');
-        setShifts([res.data, ...shifts]);
+        if (res.data.status === 'pending_payment') {
+          if (!phoneNumber.trim()) {
+            showMessage('This shift has an extra fare. Enter your M-Pesa phone number, then press the button again.', 'info');
+            return loadData();
+          }
+          return axiosInstance
+            .post('/payments/mpesa/initiate/', {
+              route_shift: res.data.id,
+              phone_number: phoneNumber,
+            })
+            .then(() => setShowPaymentModal(true));
+        }
+
+        showMessage('Route shift started successfully.', 'success');
         setSelectedRoute(null);
+        return loadData();
       })
-      .catch((err) =>
-        setMessage(
-          err.response?.data?.detail || 'Could not start route shift.'
-        )
-      )
+      .catch((err) => {
+        const data = err.response?.data;
+        const detail = Array.isArray(data?.detail) ? data.detail[0] : data?.detail;
+        showMessage(detail || data?.error || 'Could not start route shift.', 'info');
+        loadData();
+      })
       .finally(() => setSubmitting(false));
   };
 
@@ -72,18 +129,16 @@ function RouteShift() {
     );
   }
 
-  const currentRouteId = subscription
-    ? typeof subscription.route === 'object'
-      ? subscription.route.id
-      : subscription.route
-    : null;
+  const availableRoutes = routes.filter((route) => route.id !== currentRouteId);
 
-  const availableRoutes = routes.filter(
-    (route) => route.id !== currentRouteId
-  );
+  const isActive =
+    subscription &&
+    subscription.status === 'active' &&
+    new Date(subscription.expiry_date) > new Date();
 
-  const shiftLimitReached =
-    subscription && subscription.shift_count >= 3;
+  const shiftLimitReached = subscription && subscription.shift_count >= 3;
+
+  const selectedExtra = selectedRoute ? extraFor(selectedRoute) : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,33 +149,25 @@ function RouteShift() {
         <div className="mb-7 sm:mb-8">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary flex items-center justify-center shrink-0">
-              <FontAwesomeIcon
-                icon={faRoute}
-                className="text-white text-base sm:text-lg"
-              />
+              <FontAwesomeIcon icon={faRoute} className="text-white text-base sm:text-lg" />
             </div>
 
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">
-                Route Shift
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-primary">Route Shift</h1>
 
               <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-                Temporarily switch to a different route, up to 3 times per
-                subscription.
+                Temporarily switch to a different route, up to 3 times per subscription. A pricier
+                route needs a small extra payment.
               </p>
             </div>
           </div>
         </div>
 
-        {/* No Subscription */}
-        {!subscription ? (
+        {/* No active subscription */}
+        {!subscription || !isActive ? (
           <div className="bg-card rounded-2xl p-6 sm:p-8 shadow-sm text-center">
             <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <FontAwesomeIcon
-                icon={faRoute}
-                className="text-gray-400 text-lg"
-              />
+              <FontAwesomeIcon icon={faRoute} className="text-gray-400 text-lg" />
             </div>
 
             <h2 className="text-base sm:text-lg font-semibold text-textdark mb-1">
@@ -128,7 +175,9 @@ function RouteShift() {
             </h2>
 
             <p className="text-sm text-gray-400">
-              You don't have a subscription yet.
+              {subscription
+                ? 'Your latest subscription has expired. Renew it from Browse Routes to shift routes.'
+                : "You don't have a subscription yet."}
             </p>
           </div>
         ) : (
@@ -137,18 +186,14 @@ function RouteShift() {
             {message && (
               <div
                 className={`text-sm rounded-xl px-4 py-3 mb-6 border ${
-                  message.includes('successfully')
+                  messageType === 'success'
                     ? 'bg-green-50 border-green-100 text-green-700'
                     : 'bg-blue-50 border-blue-100 text-blue-700'
                 }`}
               >
                 <div className="flex items-start gap-2">
                   <FontAwesomeIcon
-                    icon={
-                      message.includes('successfully')
-                        ? faCircleCheck
-                        : faRoute
-                    }
+                    icon={messageType === 'success' ? faCircleCheck : faRoute}
                     className="mt-0.5 shrink-0"
                   />
 
@@ -170,73 +215,86 @@ function RouteShift() {
                   </h2>
 
                   <p className="text-sm text-gray-500 mt-1">
-                    Select the route you'd like to use temporarily.
+                    Select the route you'd like to use until your subscription ends ({remainingDays}{' '}
+                    day{remainingDays === 1 ? '' : 's'} left).
                   </p>
                 </div>
 
                 {/* Routes */}
                 {availableRoutes.length === 0 ? (
                   <div className="border border-dashed border-gray-200 rounded-xl p-6 text-center">
-                    <p className="text-sm text-gray-400">
-                      No other routes are currently available.
-                    </p>
+                    <p className="text-sm text-gray-400">No other routes are currently available.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                    {availableRoutes.map((route) => (
-                      <button
-                        key={route.id}
-                        onClick={() => setSelectedRoute(route)}
-                        className={`rounded-xl p-4 text-left border-2 transition-all ${
-                          selectedRoute?.id === route.id
-                            ? 'border-secondary bg-secondary/5 shadow-sm'
-                            : 'border-gray-200 bg-white hover:border-secondary/40 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div
-                              className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                                selectedRoute?.id === route.id
-                                  ? 'bg-secondary'
-                                  : 'bg-gray-100'
-                              }`}
-                            >
-                              <FontAwesomeIcon
-                                icon={faLocationDot}
-                                className={
-                                  selectedRoute?.id === route.id
-                                    ? 'text-white text-sm'
-                                    : 'text-secondary text-sm'
-                                }
-                              />
-                            </div>
+                    {availableRoutes.map((route) => {
+                      const extra = extraFor(route);
+                      const selected = selectedRoute?.id === route.id;
 
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-textdark leading-relaxed">
-                                {route.origin}
+                      return (
+                        <button
+                          key={route.id}
+                          onClick={() => setSelectedRoute(route)}
+                          className={`rounded-xl p-4 text-left border-2 transition-all ${
+                            selected
+                              ? 'border-secondary bg-secondary/5 shadow-sm'
+                              : 'border-gray-200 bg-white hover:border-secondary/40 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div
+                                className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                                  selected ? 'bg-secondary' : 'bg-gray-100'
+                                }`}
+                              >
                                 <FontAwesomeIcon
-                                  icon={faArrowRight}
-                                  className="text-xs mx-2 text-gray-400"
+                                  icon={faLocationDot}
+                                  className={selected ? 'text-white text-sm' : 'text-secondary text-sm'}
                                 />
-                                {route.destination}
-                              </p>
+                              </div>
 
-                              <p className="text-xs text-gray-400 mt-1">
-                                Temporary route
-                              </p>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-textdark leading-relaxed">
+                                  {route.origin}
+                                  <FontAwesomeIcon icon={faArrowRight} className="text-xs mx-2 text-gray-400" />
+                                  {route.destination}
+                                </p>
+
+                                <p className={`text-xs mt-1 font-medium ${extra > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                                  {extra > 0 ? `Extra KES ${extra}` : 'Free'}
+                                </p>
+                              </div>
                             </div>
-                          </div>
 
-                          {selectedRoute?.id === route.id && (
-                            <FontAwesomeIcon
-                              icon={faCircleCheck}
-                              className="text-secondary shrink-0"
-                            />
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                            {selected && (
+                              <FontAwesomeIcon icon={faCircleCheck} className="text-secondary shrink-0" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Phone number, only when there is an extra fare */}
+                {selectedRoute && selectedExtra > 0 && (
+                  <div className="mb-5">
+                    <div className="bg-secondary/5 border border-secondary/20 rounded-xl px-4 py-3 flex justify-between items-center mb-3">
+                      <span className="text-sm text-textdark">Extra to pay</span>
+                      <span className="text-xl font-bold text-primary">KES {selectedExtra}</span>
+                    </div>
+
+                    <label className="block text-sm font-medium text-textdark mb-1">
+                      M-Pesa Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="2547XXXXXXXX"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-secondary"
+                    />
                   </div>
                 )}
 
@@ -247,14 +305,11 @@ function RouteShift() {
                   className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting ? (
-                    'Starting shift...'
+                    'Working...'
                   ) : (
                     <>
-                      Start Route Shift
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        className="text-xs"
-                      />
+                      {selectedExtra > 0 ? `Pay KES ${selectedExtra} & Shift` : 'Start Route Shift'}
+                      <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
                     </>
                   )}
                 </button>
@@ -265,9 +320,7 @@ function RouteShift() {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-base font-semibold text-textdark">
-                    Shift History
-                  </h2>
+                  <h2 className="text-base font-semibold text-textdark">Shift History</h2>
 
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     Your previous temporary route changes.
@@ -275,72 +328,76 @@ function RouteShift() {
                 </div>
 
                 <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <FontAwesomeIcon
-                    icon={faClockRotateLeft}
-                    className="text-gray-500 text-sm"
-                  />
+                  <FontAwesomeIcon icon={faClockRotateLeft} className="text-gray-500 text-sm" />
                 </div>
               </div>
 
               {shifts.length === 0 ? (
                 <div className="bg-card rounded-xl p-5 shadow-sm">
-                  <p className="text-sm text-gray-400 text-center">
-                    No route shifts yet.
-                  </p>
+                  <p className="text-sm text-gray-400 text-center">No route shifts yet.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {shifts.map((shift) => (
-                    <div
-                      key={shift.id}
-                      className="bg-card rounded-xl p-4 sm:p-5 shadow-sm"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-medium text-textdark">
-                            Route shift
-                          </p>
+                  {shifts.map((shift) => {
+                    const awaiting = shift.status === 'pending_payment';
+                    const badge = shift.reverted
+                      ? { label: 'Reverted', cls: 'bg-gray-100 text-gray-500' }
+                      : awaiting
+                      ? { label: 'Awaiting payment', cls: 'bg-amber-50 text-amber-600' }
+                      : { label: 'Active', cls: 'bg-green-50 text-green-600' };
 
-                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                            Shifted on{' '}
-                            {new Date(
-                              shift.starts_at
-                            ).toLocaleDateString()}
-                          </p>
+                    return (
+                      <div key={shift.id} className="bg-card rounded-xl p-4 sm:p-5 shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium text-textdark">Route shift</p>
+
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                              Shifted on {new Date(shift.starts_at).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          <span className={`self-start sm:self-auto text-xs font-medium px-2.5 py-1 rounded-full ${badge.cls}`}>
+                            {badge.label}
+                          </span>
                         </div>
 
-                        <span
-                          className={`self-start sm:self-auto text-xs font-medium px-2.5 py-1 rounded-full ${
-                            shift.reverted
-                              ? 'bg-gray-100 text-gray-500'
-                              : 'bg-green-50 text-green-600'
-                          }`}
-                        >
-                          {shift.reverted ? 'Reverted' : 'Active'}
-                        </span>
+                        {Number(shift.extra_amount_paid) > 0 && (
+                          <div className="border-t border-gray-100 mt-3 pt-3">
+                            <p className="text-xs sm:text-sm text-gray-500">
+                              {awaiting ? 'Extra due' : 'Extra paid'}:{' '}
+                              <span className="font-medium text-textdark">
+                                KES {shift.extra_amount_paid}
+                              </span>
+                            </p>
+                          </div>
+                        )}
                       </div>
-
-                      {shift.extra_amount_paid > 0 && (
-                        <div className="border-t border-gray-100 mt-3 pt-3">
-                          <p className="text-xs sm:text-sm text-gray-500">
-                            Extra paid:{' '}
-                            <span className="font-medium text-textdark">
-                              KES {shift.extra_amount_paid}
-                            </span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>
           </>
         )}
       </main>
+
+      <PaymentModal
+        open={showPaymentModal}
+        subscriptionId={subscription?.id}
+        kind="shift"
+        onDone={() => {
+          setShowPaymentModal(false);
+          setSelectedRoute(null);
+          loadData();
+        }}
+        onRetry={() => {
+          setShowPaymentModal(false);
+          loadData();
+        }}
+      />
     </div>
   );
 }
 
 export default RouteShift;
-
