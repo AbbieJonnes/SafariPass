@@ -1,10 +1,22 @@
+import math
 import uuid
 from datetime import timedelta
+from decimal import Decimal
 from django.utils import timezone
 from rest_framework import serializers
 from .models import Subscription, RouteShift
 from .services import activate_route_shift
 from companies.models import Fare
+
+
+def daily_total(route):
+    """Morning + evening fare for a route (evening defaults to morning)."""
+    fare = Fare.objects.filter(route=route, effective_to__isnull=True).first()
+    if not fare:
+        return Decimal('0')
+    morning = fare.price
+    evening = fare.evening_price if fare.evening_price is not None else morning
+    return morning + evening
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -17,10 +29,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         route = validated_data['route']
         plan_type = validated_data['plan_type']
 
-        current_fare = Fare.objects.filter(route=route, effective_to__isnull=True).first()
-        morning_price = current_fare.price if current_fare else 0
-        evening_price = current_fare.evening_price if current_fare and current_fare.evening_price else morning_price
-        price_paid = (morning_price + evening_price) * plan_type.price_multiplier
+        price_paid = daily_total(route) * plan_type.price_multiplier
 
         duration_days = 7 if plan_type.duration == 'weekly' else 30
         expiry_date = timezone.now() + timedelta(days=duration_days)
@@ -61,7 +70,7 @@ class RouteShiftSerializer(serializers.ModelSerializer):
         if request and subscription.passenger != request.user:
             raise serializers.ValidationError({'detail': 'This is not your subscription.'})
 
-        if subscription.status != 'active':
+        if subscription.status != 'active' or subscription.expiry_date < timezone.now():
             raise serializers.ValidationError({'detail': 'Route shifts are only available on an active, paid subscription.'})
 
         if subscription.shift_count >= 3:
@@ -73,12 +82,11 @@ class RouteShiftSerializer(serializers.ModelSerializer):
         if temporary_route == original_route:
             raise serializers.ValidationError({'detail': 'You are already on this route.'})
 
-        original_fare = Fare.objects.filter(route=original_route, effective_to__isnull=True).first()
-        new_fare = Fare.objects.filter(route=temporary_route, effective_to__isnull=True).first()
+        remaining_seconds = (subscription.expiry_date - timezone.now()).total_seconds()
+        remaining_days = max(1, math.ceil(remaining_seconds / 86400))
 
-        original_price = original_fare.price if original_fare else 0
-        new_price = new_fare.price if new_fare else 0
-        extra_amount = max(new_price - original_price, 0)
+        daily_gap = daily_total(temporary_route) - daily_total(original_route)
+        extra_amount = Decimal(math.ceil(daily_gap * remaining_days)) if daily_gap > 0 else Decimal('0')
 
         RouteShift.objects.filter(
             subscription=subscription, status='pending_payment'
