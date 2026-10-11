@@ -9,7 +9,8 @@ from .models import Payment, ValidationRecord
 from .serializers import PaymentSerializer, ValidationRecordSerializer
 from .mpesa import initiate_stk_push
 from accounts.permissions import IsConductor
-from subscriptions.models import Subscription
+from subscriptions.models import Subscription, RouteShift
+from subscriptions.services import activate_route_shift
 
 
 class PaymentListCreateView(generics.ListCreateAPIView):
@@ -45,24 +46,41 @@ class InitiateMpesaPaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        subscription_id = request.data.get('subscription')
         phone_number = request.data.get('phone_number')
+        shift_id = request.data.get('route_shift')
+        subscription_id = request.data.get('subscription')
 
-        try:
-            subscription = Subscription.objects.get(id=subscription_id, passenger=request.user)
-        except Subscription.DoesNotExist:
-            return Response({'error': 'Subscription not found.'}, status=status.HTTP_404_NOT_FOUND)
+        route_shift = None
+
+        if shift_id:
+            try:
+                route_shift = RouteShift.objects.get(
+                    id=shift_id,
+                    subscription__passenger=request.user,
+                    status='pending_payment',
+                )
+            except RouteShift.DoesNotExist:
+                return Response({'error': 'Route shift not found or already handled.'}, status=status.HTTP_404_NOT_FOUND)
+            subscription = route_shift.subscription
+            amount = route_shift.extra_amount_paid
+        else:
+            try:
+                subscription = Subscription.objects.get(id=subscription_id, passenger=request.user)
+            except Subscription.DoesNotExist:
+                return Response({'error': 'Subscription not found.'}, status=status.HTTP_404_NOT_FOUND)
+            amount = subscription.price_paid
 
         result = initiate_stk_push(
             phone_number=phone_number,
-            amount=subscription.price_paid,
+            amount=amount,
             subscription_id=subscription.id,
         )
 
         Payment.objects.create(
             subscription=subscription,
+            route_shift=route_shift,
             mpesa_transaction_id=result.get('CheckoutRequestID', 'PENDING'),
-            amount=subscription.price_paid,
+            amount=amount,
             status='pending',
         )
 
@@ -85,6 +103,7 @@ class PaymentStatusView(APIView):
 
         return Response({'status': payment.status})
 
+
 class MpesaCallbackView(APIView):
     permission_classes = [AllowAny]
 
@@ -100,58 +119,86 @@ class MpesaCallbackView(APIView):
 
         subscription = payment.subscription
         passenger = subscription.passenger
+        shift = payment.route_shift
 
         if result_code == 0:
             payment.status = 'success'
             payment.save()
 
-            subscription.status = 'active'
-            subscription.save()
+            if shift:
+                if shift.status == 'pending_payment':
+                    activate_route_shift(shift)
+            else:
+                subscription.status = 'active'
+                subscription.save()
 
-            if passenger.email:
-                start = timezone.localtime(subscription.start_date).strftime('%d %b %Y')
-                end = timezone.localtime(subscription.expiry_date).strftime('%d %b %Y')
-                try:
-                    send_mail(
-                        subject="Payment Successful — SafariPass",
-                        message=(
-                            f"Hi {passenger.username},\n\n"
-                            f"Your payment of KES {payment.amount} was successful.\n\n"
-                            f"Your subscription is now active on {subscription.route.origin} → {subscription.route.destination}, "
-                            f"valid from {start} to {end}.\n\n"
-                            f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
-                            f"If you ever need to temporarily switch routes, you can request a Route Shift from your account — "
-                            f"it's free if the new route is the same price or cheaper, or you'll just pay the small difference if it's more expensive. "
-                            f"Your pass automatically switches back to your original route once the shift period ends.\n\n"
-                            f"Ride safe!\n— SafariPass"
-                        ),
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[passenger.email],
-                    )
-                except Exception as e:
-                    print(f"Failed to send payment success email to {passenger.email}: {e}")
+                if passenger.email:
+                    start = timezone.localtime(subscription.start_date).strftime('%d %b %Y')
+                    end = timezone.localtime(subscription.expiry_date).strftime('%d %b %Y')
+                    try:
+                        send_mail(
+                            subject="Payment Successful — SafariPass",
+                            message=(
+                                f"Hi {passenger.username},\n\n"
+                                f"Your payment of KES {payment.amount} was successful.\n\n"
+                                f"Your subscription is now active on {subscription.route.origin} → {subscription.route.destination}, "
+                                f"valid from {start} to {end}.\n\n"
+                                f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
+                                f"If you ever need to temporarily switch routes, you can request a Route Shift from your account — "
+                                f"it's free if the new route is the same price or cheaper, or you'll just pay the small difference if it's more expensive. "
+                                f"Your pass automatically switches back to your original route once the shift period ends.\n\n"
+                                f"Ride safe!\n— SafariPass"
+                            ),
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[passenger.email],
+                        )
+                    except Exception as e:
+                        print(f"Failed to send payment success email to {passenger.email}: {e}")
         else:
             payment.status = 'failed'
             payment.save()
 
-            subscription.status = 'payment_failed'
-            subscription.save()
+            if shift:
+                if shift.status == 'pending_payment':
+                    shift.status = 'payment_failed'
+                    shift.save()
 
-            if passenger.email:
-                try:
-                    send_mail(
-                        subject="Payment Not Completed — SafariPass",
-                        message=(
-                            f"Hi {passenger.username},\n\n"
-                            f"Your payment of KES {payment.amount} was not completed.\n\n"
-                            f"You can try subscribing again from Browse Routes:\n"
-                            f"{settings.FRONTEND_URL}/passenger/browse\n\n"
-                            f"— SafariPass"
-                        ),
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[passenger.email],
-                    )
-                except Exception as e:
-                    print(f"Failed to send payment failure email to {passenger.email}: {e}")
+                if passenger.email:
+                    try:
+                        send_mail(
+                            subject="Route Shift Not Completed — SafariPass",
+                            message=(
+                                f"Hi {passenger.username},\n\n"
+                                f"Your payment of KES {payment.amount} for the route shift was not completed, "
+                                f"so your pass stays on its original route.\n\n"
+                                f"You can try the shift again from Route Shift:\n"
+                                f"{settings.FRONTEND_URL}/passenger/shift\n\n"
+                                f"— SafariPass"
+                            ),
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[passenger.email],
+                        )
+                    except Exception as e:
+                        print(f"Failed to send route shift failure email to {passenger.email}: {e}")
+            else:
+                subscription.status = 'payment_failed'
+                subscription.save()
+
+                if passenger.email:
+                    try:
+                        send_mail(
+                            subject="Payment Not Completed — SafariPass",
+                            message=(
+                                f"Hi {passenger.username},\n\n"
+                                f"Your payment of KES {payment.amount} was not completed.\n\n"
+                                f"You can try subscribing again from Browse Routes:\n"
+                                f"{settings.FRONTEND_URL}/passenger/browse\n\n"
+                                f"— SafariPass"
+                            ),
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[passenger.email],
+                        )
+                    except Exception as e:
+                        print(f"Failed to send payment failure email to {passenger.email}: {e}")
 
         return Response({'ResultCode': 0, 'ResultDesc': 'Accepted'})
