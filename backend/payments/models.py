@@ -10,6 +10,14 @@ class Payment(models.Model):
         ('failed', 'Failed'),
     ]
 
+    route_shift = models.ForeignKey(
+        'subscriptions.RouteShift',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='payments',
+    )
+
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='payments')
     mpesa_transaction_id = models.CharField(max_length=100, unique=True)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
