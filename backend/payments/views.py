@@ -76,10 +76,17 @@ class InitiateMpesaPaymentView(APIView):
             subscription_id=subscription.id,
         )
 
+        checkout_id = result.get('CheckoutRequestID')
+        if not checkout_id:
+            return Response(
+                {'error': 'Could not start the M-Pesa payment. Check the phone number (format 2547XXXXXXXX) and try again.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         Payment.objects.create(
             subscription=subscription,
             route_shift=route_shift,
-            mpesa_transaction_id=result.get('CheckoutRequestID', 'PENDING'),
+            mpesa_transaction_id=checkout_id,
             amount=amount,
             status='pending',
         )
