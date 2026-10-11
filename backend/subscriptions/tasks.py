@@ -104,7 +104,7 @@ def revert_expired_route_shifts():
     from accounts.models import NotificationLog
 
     now = timezone.now()
-    expired_shifts = RouteShift.objects.filter(reverted=False, ends_at__lte=now)
+    expired_shifts = RouteShift.objects.filter(status='active', reverted=False, ends_at__lte=now)
 
     for shift in expired_shifts:
         shift.reverted = True
