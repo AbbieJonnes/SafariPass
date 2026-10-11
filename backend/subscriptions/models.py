@@ -27,6 +27,12 @@ class Subscription(models.Model):
 
 
 class RouteShift(models.Model):
+    STATUS_CHOICES = [
+        ('pending_payment', 'Pending payment'),
+        ('payment_failed', 'Payment failed'),
+        ('active', 'Active'),
+    ]
+
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='shifts')
     original_route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='shift_originals')
     temporary_route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='shift_temporaries')
@@ -34,6 +40,7 @@ class RouteShift(models.Model):
     ends_at = models.DateTimeField()
     reverted = models.BooleanField(default=False)
     extra_amount_paid = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
 
     def __str__(self):
         return f"Shift: {self.subscription} → {self.temporary_route}"
