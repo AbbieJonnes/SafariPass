@@ -1,10 +1,9 @@
 import uuid
 from datetime import timedelta
 from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
 from rest_framework import serializers
 from .models import Subscription, RouteShift
+from .services import activate_route_shift
 from companies.models import Fare
 
 
@@ -36,7 +35,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             status='pending',
         )
         return subscription
-    
+
     def to_representation(self, instance):
         from companies.serializers import RouteSerializer
         data = super().to_representation(instance)
@@ -48,14 +47,19 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             data['plan_label'] = ''
         return data
 
+
 class RouteShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteShift
         fields = '__all__'
-        read_only_fields = ['original_route', 'starts_at', 'ends_at', 'reverted', 'extra_amount_paid']
+        read_only_fields = ['original_route', 'starts_at', 'ends_at', 'reverted', 'extra_amount_paid', 'status']
 
     def create(self, validated_data):
+        request = self.context.get('request')
         subscription = validated_data['subscription']
+
+        if request and subscription.passenger != request.user:
+            raise serializers.ValidationError({'detail': 'This is not your subscription.'})
 
         if subscription.status != 'active':
             raise serializers.ValidationError({'detail': 'Route shifts are only available on an active, paid subscription.'})
@@ -66,6 +70,9 @@ class RouteShiftSerializer(serializers.ModelSerializer):
         temporary_route = validated_data['temporary_route']
         original_route = subscription.route
 
+        if temporary_route == original_route:
+            raise serializers.ValidationError({'detail': 'You are already on this route.'})
+
         original_fare = Fare.objects.filter(route=original_route, effective_to__isnull=True).first()
         new_fare = Fare.objects.filter(route=temporary_route, effective_to__isnull=True).first()
 
@@ -73,37 +80,20 @@ class RouteShiftSerializer(serializers.ModelSerializer):
         new_price = new_fare.price if new_fare else 0
         extra_amount = max(new_price - original_price, 0)
 
-        starts_at = timezone.now()
-        ends_at = subscription.expiry_date
+        RouteShift.objects.filter(
+            subscription=subscription, status='pending_payment'
+        ).update(status='payment_failed')
 
         shift = RouteShift.objects.create(
             subscription=subscription,
             original_route=original_route,
             temporary_route=temporary_route,
-            starts_at=starts_at,
-            ends_at=ends_at,
+            ends_at=subscription.expiry_date,
             extra_amount_paid=extra_amount,
+            status='pending_payment' if extra_amount > 0 else 'active',
         )
 
-        subscription.shift_count += 1
-        subscription.save()
+        if extra_amount == 0:
+            activate_route_shift(shift)
 
-        passenger = shift.subscription.passenger
-        if passenger.email:
-            send_mail(
-                subject="Route Shift Confirmed — SafariPass",
-                message=(
-                    f"Hi {passenger.username},\n\n"
-                    f"Your subscription has been temporarily shifted from "
-                    f"{shift.original_route.origin} → {shift.original_route.destination} "
-                    f"to {shift.temporary_route.origin} → {shift.temporary_route.destination}.\n\n"
-                    f"This shift is active from {shift.starts_at.strftime('%d %b %Y, %I:%M %p')} "
-                    f"to {shift.ends_at.strftime('%d %b %Y, %I:%M %p')}.\n\n"
-                    f"Track your journey live: {settings.FRONTEND_URL}/passenger/map\n\n"
-                    f"After that time, your pass will automatically return to your original route.\n\n"
-                    f"— SafariPass"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[passenger.email],
-            )
         return shift
