@@ -53,8 +53,9 @@ class RouteShiftListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        base = RouteShift.objects.exclude(status='payment_failed')
         if user.role == 'passenger':
-            return RouteShift.objects.filter(subscription__passenger=user).order_by('-starts_at')
+            return base.filter(subscription__passenger=user).order_by('-starts_at')
         if user.role == 'company_admin':
-            return RouteShift.objects.filter(subscription__route__company=user.company).order_by('-starts_at')
-        return RouteShift.objects.all().order_by('-starts_at')
+            return base.filter(subscription__route__company=user.company).order_by('-starts_at')
+        return base.order_by('-starts_at')
