@@ -76,9 +76,10 @@ function PassengerDashboard() {
     },
   ];
 
+  // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#D1FAE5] via-[#E0F2FE] to-[#FFFFFF]">
         <Navbar />
 
         <div className="max-w-6xl mx-auto px-6 py-12">
@@ -92,9 +93,10 @@ function PassengerDashboard() {
     );
   }
 
+  // No active subscription
   if (!subscription) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#D1FAE5] via-[#E0F2FE] to-[#FFFFFF]">
         <Navbar />
         <PassengerTour />
 
@@ -136,8 +138,9 @@ function PassengerDashboard() {
       ? `${subscription.route.origin} → ${subscription.route.destination}`
       : `Route #${subscription.route}`;
 
+  // Main passenger dashboard
   return (
-    <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#D1FAE5] via-[#E0F2FE] to-[#FFFFFF]">
       <Navbar />
       <PassengerTour />
 
