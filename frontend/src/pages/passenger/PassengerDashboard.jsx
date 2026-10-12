@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import PassengerTour from '../../components/PassengerTour';
+import RenewBanner from '../../components/RenewBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faQrcode,
@@ -14,18 +15,18 @@ import {
 import { Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
+const routeLabelOf = (route) =>
+  route && typeof route === 'object'
+    ? `${route.origin} → ${route.destination}`
+    : '';
+
 function PassengerDashboard() {
-  const [subscription, setSubscription] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axiosInstance
-      .get('/subscriptions/')
-      .then((res) => {
-        if (res.data.length > 0) {
-          setSubscription(res.data[0]);
-        }
-      })
+    axiosInstance.get('/subscriptions/')
+      .then((res) => setSubscriptions(res.data))
       .finally(() => setLoading(false));
   }, []);
 
@@ -93,15 +94,15 @@ function PassengerDashboard() {
     );
   }
 
-  // No active subscription
-  if (!subscription) {
+  // No subscriptions
+  if (subscriptions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#D1FAE5] via-[#E0F2FE] to-[#FFFFFF]">
         <Navbar />
         <PassengerTour />
 
         <div className="max-w-2xl mx-auto px-6 py-16 text-center tour-welcome">
-          <div className="bg-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div className="bg-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
             <FontAwesomeIcon
               icon={faRoute}
               className="text-white text-2xl"
@@ -116,14 +117,14 @@ function PassengerDashboard() {
             Start your journey
           </h1>
 
-          <p className="text-gray-500 leading-relaxed mb-8">
+          <p className="text-gray-600 leading-relaxed mb-8">
             You don't have an active subscription yet. Pick a company and
             route to get your first QR pass.
           </p>
 
           <Link
             to="/passenger/browse"
-            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-7 py-3 rounded-xl hover:bg-primary/90 transition"
+            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-7 py-3 rounded-xl hover:bg-primary/90 transition duration-200"
           >
             Browse Routes
             <FontAwesomeIcon icon={faArrowRight} />
@@ -133,12 +134,15 @@ function PassengerDashboard() {
     );
   }
 
-  const routeLabel =
-    typeof subscription.route === 'object'
-      ? `${subscription.route.origin} → ${subscription.route.destination}`
-      : `Route #${subscription.route}`;
+  // Determine the current subscription
+  const now = new Date();
 
-  // Main passenger dashboard
+  const current = subscriptions.find(
+    (s) => s.status === 'active' && new Date(s.expiry_date) > now
+  );
+
+  const latest = subscriptions[0];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#D1FAE5] via-[#E0F2FE] to-[#FFFFFF]">
       <Navbar />
@@ -156,54 +160,62 @@ function PassengerDashboard() {
           </h1>
 
           <p className="text-gray-600">
-            Here's your SafariPass account at a glance.
+            Here's your account at a glance.
           </p>
         </div>
 
-        {/* Active Subscription */}
-        <div className="bg-[#E0F1E5] rounded-2xl border border-[#C9E4D1] shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-5">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[#C5E6D0] flex items-center justify-center flex-shrink-0">
+        {/* Active Subscription or Renewal Banner */}
+        {current ? (
+          <div className="bg-[#E0F1E5] rounded-2xl border border-[#C9E4D1] shadow-sm p-6 mb-8">
+            <div className="flex items-center justify-between flex-wrap gap-5">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-[#C5E6D0] flex items-center justify-center flex-shrink-0">
+                  <FontAwesomeIcon
+                    icon={faCircleCheck}
+                    className="text-green-700 text-lg"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                    Active Route
+                  </p>
+
+                  <p className="font-semibold text-textdark">
+                    {routeLabelOf(current.route) || `Route #${current.route}`}
+                  </p>
+
+                  <p className="text-sm text-gray-600 mt-1">
+                    Expires {new Date(current.expiry_date).toLocaleString()}
+                    {' — '}
+                    <span className="capitalize">
+                      {current.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to="/passenger/qr"
+                className="text-secondary font-medium text-sm flex items-center gap-2 hover:text-primary transition"
+              >
+                View QR Pass
                 <FontAwesomeIcon
-                  icon={faCircleCheck}
-                  className="text-green-700 text-lg"
+                  icon={faArrowRight}
+                  className="text-xs"
                 />
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                  Active Route
-                </p>
-
-                <p className="font-semibold text-textdark">
-                  {routeLabel}
-                </p>
-
-                <p className="text-sm text-gray-600 mt-1">
-                  Expires {subscription.expiry_date}
-                  {' — '}
-                  <span className="capitalize">
-                    {subscription.status}
-                  </span>
-                </p>
-              </div>
+              </Link>
             </div>
-
-            <Link
-              to="/passenger/qr"
-              className="text-secondary font-medium text-sm flex items-center gap-2 hover:text-primary transition"
-            >
-              View QR Pass
-              <FontAwesomeIcon
-                icon={faArrowRight}
-                className="text-xs"
-              />
-            </Link>
           </div>
-        </div>
+        ) : (
+          <RenewBanner
+            routeLabel={routeLabelOf(latest.route)}
+            expiredOn={latest.expiry_date}
+            className="mb-8"
+          />
+        )}
 
-        {/* Dashboard Actions */}
+        {/* Dashboard Action Cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map((card) => (
             <Link
