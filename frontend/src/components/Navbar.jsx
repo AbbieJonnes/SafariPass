@@ -19,6 +19,7 @@ function Navbar({ hideBack = false }) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const dashboardPath = user ? dashboardByRole[user.role] : '/';
   const isOnDashboard = location.pathname === dashboardPath;
+  const showBack = !isOnDashboard && !hideBack;
 
   useEffect(() => {
     if (!user) return;
@@ -43,51 +44,60 @@ function Navbar({ hideBack = false }) {
   };
 
   return (
-    <nav className="bg-primary shadow-md px-6 py-4 flex items-center justify-between flex-shrink-0">
-      <div className="flex items-center gap-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-white">
+    <nav className="bg-primary shadow-md px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <Link to="/" className="flex items-center gap-2 font-bold text-white flex-shrink-0">
           <FontAwesomeIcon icon={faBusSimple} className="text-accent" />
-          SafariPass
+          <span className={showBack ? 'hidden sm:inline' : ''}>SafariPass</span>
         </Link>
-        {!isOnDashboard && !hideBack && (
+
+        {showBack && (
           <Link
             to={dashboardPath}
-            className="flex items-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition border border-white/10 ml-2"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-2.5 sm:px-3 py-1.5 rounded-lg transition border border-white/10 whitespace-nowrap"
           >
-            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back to Dashboard
+            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
+            <span className="sm:hidden">Dashboard</span>
+            <span className="hidden sm:inline">Back to Dashboard</span>
           </Link>
         )}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         {user?.role === 'passenger' && isOnDashboard && (
           <button
             onClick={handleReplayTour}
+            aria-label="Replay tour"
             className="flex items-center gap-1 text-sm text-accent hover:opacity-80 transition"
           >
-            <FontAwesomeIcon icon={faCircleQuestion} /> Replay Tour
+            <FontAwesomeIcon icon={faCircleQuestion} />
+            <span className="hidden sm:inline">Replay Tour</span>
           </button>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {photo && !photoFailed ? (
             <img
               src={photo}
               alt=""
               onError={() => setPhotoFailed(true)}
-              className="w-8 h-8 rounded-full object-cover border border-white/20"
+              className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-sm">
+            <div className="w-8 h-8 rounded-full bg-accent text-primary font-bold flex items-center justify-center text-sm flex-shrink-0">
               {user?.username?.[0]?.toUpperCase()}
             </div>
           )}
-          <span className="text-sm text-gray-300 capitalize hidden sm:inline">
-            {user?.username} — {user?.role?.replace('_', ' ')}
+          <span className="text-sm text-gray-300 capitalize truncate max-w-[64px] sm:max-w-none">
+            {user?.username}
+            <span className="hidden sm:inline"> — {user?.role?.replace('_', ' ')}</span>
           </span>
         </div>
 
-        <button onClick={logout} className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 transition">
+        <button
+          onClick={logout}
+          className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 transition flex-shrink-0"
+        >
           <FontAwesomeIcon icon={faRightFromBracket} /> Logout
         </button>
       </div>
