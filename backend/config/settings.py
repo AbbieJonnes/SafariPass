@@ -220,3 +220,23 @@ FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
+# --- Cloudinary image storage (profile pictures) ---
+CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
+CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY', default='')
+CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET', default='')
+
+if CLOUDINARY_CLOUD_NAME:
+    import cloudinary
+    from django.conf import global_settings
+
+    cloudinary.config(
+        cloud_name=CLOUDINARY_CLOUD_NAME,
+        api_key=CLOUDINARY_API_KEY,
+        api_secret=CLOUDINARY_API_SECRET,
+        secure=True,
+    )
+    STORAGES = {
+        **globals().get('STORAGES', global_settings.STORAGES),
+        'default': {'BACKEND': 'accounts.storage.CloudinaryMediaStorage'},
+    }
