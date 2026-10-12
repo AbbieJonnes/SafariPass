@@ -157,31 +157,47 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
+        username = serializer.validated_data['username'].strip()
+        email = serializer.validated_data['email'].strip()
 
-        for user in User.objects.filter(email__iexact=email, is_active=True):
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+        user = User.objects.filter(
+            username=username,
+            email__iexact=email,
+            is_active=True,
+        ).first()
 
-            try:
-                send_mail(
-                    subject='SafariPass Password Reset',
-                    message=(
-                        f"Hi {user.username},\n\n"
-                        f"Use this link to reset the password for your SafariPass account '{user.username}':\n"
-                        f"{reset_link}\n\n"
-                        f"If you didn't ask for this, you can ignore this email.\n\n"
-                        f"— SafariPass"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                )
-            except Exception as e:
-                print(f"Failed to send password reset email to {user.email}: {e}")
+        if user is None:
+            return Response(
+                {'error': 'No account found with that username and email.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-        return Response({'detail': 'If that email exists, a reset link has been sent.'})
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
+        try:
+            send_mail(
+                subject='SafariPass Password Reset',
+                message=(
+                    f"Hi {user.username},\n\n"
+                    f"Use this link to reset your SafariPass password:\n"
+                    f"{reset_link}\n\n"
+                    f"If you didn't ask for this, you can ignore this email.\n\n"
+                    f"— SafariPass"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+            )
+        except Exception as e:
+            print(f"Failed to send password reset email to {user.email}: {e}")
+            return Response(
+                {'error': 'We could not send the email right now. Please try again shortly.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response({'detail': 'A reset link has been sent to your email.'})
+    
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
 
