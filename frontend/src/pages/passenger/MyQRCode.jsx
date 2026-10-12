@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRoute, faCalendarCheck, faCircleCheck, faCircleXmark, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faRoute, faCalendarCheck, faCircleCheck, faCircleXmark, faDownload, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../../components/Navbar';
+import RenewBanner from '../../components/RenewBanner';
 import axiosInstance from '../../api/axiosInstance';
 
 const routeLabelOf = (route) =>
@@ -63,7 +65,13 @@ function MyQRCode() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="max-w-md mx-auto px-6 py-16 text-center">
-          <p className="text-gray-500">You don't have a subscription yet.</p>
+          <p className="text-gray-500 mb-6">You don't have a subscription yet.</p>
+          <Link
+            to="/passenger/browse"
+            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 transition"
+          >
+            Browse Routes <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+          </Link>
         </div>
       </div>
     );
@@ -91,6 +99,15 @@ function MyQRCode() {
               </option>
             ))}
           </select>
+        )}
+
+        {status === 'expired' && (
+          <RenewBanner
+            stacked
+            routeLabel={routeLabelOf(subscription.route)}
+            expiredOn={subscription.expiry_date}
+            className="mb-4"
+          />
         )}
 
         <div className="bg-card rounded-2xl border border-gray-100 p-6 shadow-sm text-center">
