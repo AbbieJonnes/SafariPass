@@ -37,6 +37,9 @@ function PassengerDashboard() {
       to: '/passenger/qr',
       color: 'bg-secondary',
       tourClass: 'tour-qr',
+      cardColor: 'bg-[#E3F3E9]',
+      borderColor: 'border-[#CBE6D4]',
+      hoverColor: 'hover:bg-[#D9EEDF]',
     },
     {
       icon: faMapLocationDot,
@@ -45,6 +48,9 @@ function PassengerDashboard() {
       to: '/passenger/shift',
       color: 'bg-accent',
       tourClass: 'tour-shift',
+      cardColor: 'bg-[#EAF5DE]',
+      borderColor: 'border-[#D5E8C1]',
+      hoverColor: 'hover:bg-[#E0EFD1]',
     },
     {
       icon: faCreditCard,
@@ -53,6 +59,9 @@ function PassengerDashboard() {
       to: '/passenger/payments',
       color: 'bg-secondary',
       tourClass: 'tour-payments',
+      cardColor: 'bg-[#DDF0E5]',
+      borderColor: 'border-[#C6E4D4]',
+      hoverColor: 'hover:bg-[#D2E9DC]',
     },
     {
       icon: faUser,
@@ -61,16 +70,19 @@ function PassengerDashboard() {
       to: '/passenger/profile',
       color: 'bg-primary',
       tourClass: 'tour-profile',
+      cardColor: 'bg-[#F0F7EF]',
+      borderColor: 'border-[#DCE9D9]',
+      hoverColor: 'hover:bg-[#E5F1E3]',
     },
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
         <Navbar />
 
         <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
+          <div className="bg-white/80 rounded-2xl border border-green-100 shadow-sm p-8 text-center">
             <p className="text-sm text-gray-400">
               Loading your dashboard...
             </p>
@@ -82,7 +94,7 @@ function PassengerDashboard() {
 
   if (!subscription) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
         <Navbar />
         <PassengerTour />
 
@@ -125,7 +137,7 @@ function PassengerDashboard() {
       : `Route #${subscription.route}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-r from-[#E4F4E9] via-[#F3F9F4] to-white">
       <Navbar />
       <PassengerTour />
 
@@ -140,24 +152,24 @@ function PassengerDashboard() {
             Welcome back
           </h1>
 
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Here's your SafariPass account at a glance.
           </p>
         </div>
 
         {/* Active Subscription */}
-        <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
+        <div className="bg-[#E0F1E5] rounded-2xl border border-[#C9E4D1] shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between flex-wrap gap-5">
             <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-[#C5E6D0] flex items-center justify-center flex-shrink-0">
                 <FontAwesomeIcon
                   icon={faCircleCheck}
-                  className="text-green-600 text-lg"
+                  className="text-green-700 text-lg"
                 />
               </div>
 
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                   Active Route
                 </p>
 
@@ -165,7 +177,7 @@ function PassengerDashboard() {
                   {routeLabel}
                 </p>
 
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-600 mt-1">
                   Expires {subscription.expiry_date}
                   {' — '}
                   <span className="capitalize">
@@ -194,10 +206,10 @@ function PassengerDashboard() {
             <Link
               key={card.title}
               to={card.to}
-              className={`bg-card rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group ${card.tourClass}`}
+              className={`${card.cardColor} ${card.borderColor} ${card.hoverColor} rounded-2xl border p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-200 group ${card.tourClass}`}
             >
               <div
-                className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-5`}
+                className={`${card.color} w-12 h-12 rounded-xl flex items-center justify-center mb-5 shadow-sm`}
               >
                 <FontAwesomeIcon
                   icon={card.icon}
@@ -209,11 +221,11 @@ function PassengerDashboard() {
                 {card.title}
               </h3>
 
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-gray-600 mb-4">
                 {card.desc}
               </p>
 
-              <span className="text-sm text-secondary font-medium flex items-center gap-1">
+              <span className="text-sm text-secondary font-semibold flex items-center gap-1">
                 Open
                 <FontAwesomeIcon
                   icon={faArrowRight}
@@ -229,3 +241,4 @@ function PassengerDashboard() {
 }
 
 export default PassengerDashboard;
+
