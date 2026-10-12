@@ -80,6 +80,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
+    username = serializers.CharField()
     email = serializers.EmailField()
 
 
