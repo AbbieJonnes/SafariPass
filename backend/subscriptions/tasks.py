@@ -10,12 +10,6 @@ from payments.models import ValidationRecord
 MAX_ROLLOVER_DAYS = 7
 
 
-def _plan_days(sub):
-    if sub.plan_type and sub.plan_type.duration == 'weekly':
-        return 7
-    return 30
-
-
 def _fmt(dt):
     return timezone.localtime(dt).strftime('%d %b %Y, %I:%M %p')
 
@@ -55,48 +49,74 @@ def expire_subscription(sub):
 @shared_task
 def send_expired_notices():
     now = timezone.now()
+    count = 0
     for sub in Subscription.objects.filter(status='active', expiry_date__lt=now):
         expire_subscription(sub)
+        count += 1
+    return count
 
 
 @shared_task
 def check_unused_days_rollover():
+    """Each night, add 1 day back to every active subscription that was not ridden yesterday."""
     from accounts.models import NotificationLog
 
-    today = timezone.localdate()
+    yesterday = timezone.localdate() - timedelta(days=1)
+    extended = 0
+
     active_subs = Subscription.objects.filter(status='active', expiry_date__gte=timezone.now())
 
     for sub in active_subs:
-        latest_allowed = sub.start_date + timedelta(days=_plan_days(sub) + MAX_ROLLOVER_DAYS)
-        if sub.expiry_date >= latest_allowed:
+        started_on = timezone.localtime(sub.start_date).date()
+        if started_on >= yesterday:
             continue
 
-        rode_today = ValidationRecord.objects.filter(
+        if sub.last_rollover_on and sub.last_rollover_on >= yesterday:
+            continue
+
+        if sub.rollover_days >= MAX_ROLLOVER_DAYS:
+            sub.last_rollover_on = yesterday
+            sub.save()
+            continue
+
+        rode_yesterday = ValidationRecord.objects.filter(
             subscription=sub,
-            scanned_at__date=today,
+            scanned_at__date=yesterday,
             result='active',
         ).exists()
 
-        if not rode_today:
-            sub.expiry_date = sub.expiry_date + timedelta(days=1)
-            sub.save()
+        sub.last_rollover_on = yesterday
 
-            if sub.passenger.email:
-                try:
-                    send_mail(
-                        subject="Your SafariPass subscription was extended",
-                        message=(
-                            f"Hi {sub.passenger.username},\n\n"
-                            f"You didn't board today, so your subscription has been "
-                            f"extended by 1 day to make up for it. New expiry: {_fmt(sub.expiry_date)}.\n\n"
-                            f"— SafariPass"
-                        ),
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[sub.passenger.email],
-                    )
-                    NotificationLog.objects.create(user=sub.passenger, type='rollover_extension')
-                except Exception as e:
-                    print(f"Failed to send rollover email to {sub.passenger.email}: {e}")
+        if rode_yesterday:
+            sub.save()
+            continue
+
+        sub.expiry_date = sub.expiry_date + timedelta(days=1)
+        sub.rollover_days += 1
+        sub.save()
+        extended += 1
+
+        passenger = sub.passenger
+        if passenger.email:
+            try:
+                send_mail(
+                    subject="Your SafariPass subscription was extended",
+                    message=(
+                        f"Hi {passenger.username},\n\n"
+                        f"You didn't board yesterday ({yesterday.strftime('%a %d %b')}), so we've added "
+                        f"1 day back to your subscription on {sub.route.origin} → {sub.route.destination}.\n\n"
+                        f"New expiry: {_fmt(sub.expiry_date)}\n"
+                        f"Days added back so far: {sub.rollover_days} of {MAX_ROLLOVER_DAYS}\n\n"
+                        f"— SafariPass"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[passenger.email],
+                )
+                NotificationLog.objects.create(user=passenger, type='rollover_extension')
+            except Exception as e:
+                print(f"Failed to send rollover email to {passenger.email}: {e}")
+
+    return extended
 
 
 @shared_task
@@ -105,10 +125,12 @@ def revert_expired_route_shifts():
 
     now = timezone.now()
     expired_shifts = RouteShift.objects.filter(status='active', reverted=False, ends_at__lte=now)
+    count = 0
 
     for shift in expired_shifts:
         shift.reverted = True
         shift.save()
+        count += 1
 
         passenger = shift.subscription.passenger
         if passenger.email:
@@ -128,6 +150,8 @@ def revert_expired_route_shifts():
             except Exception as e:
                 print(f"Failed to send shift-ended email to {passenger.email}: {e}")
 
+    return count
+
 
 @shared_task
 def send_expiry_warnings():
@@ -139,6 +163,7 @@ def send_expiry_warnings():
         expiry_date__gte=timezone.now(),
         expiry_date__lte=warning_date,
     )
+    count = 0
 
     for sub in expiring_soon:
         already_warned = NotificationLog.objects.filter(
@@ -165,5 +190,8 @@ def send_expiry_warnings():
                     recipient_list=[sub.passenger.email],
                 )
                 NotificationLog.objects.create(user=sub.passenger, type='expiry_warning')
+                count += 1
             except Exception as e:
                 print(f"Failed to send expiry warning to {sub.passenger.email}: {e}")
+
+    return count
