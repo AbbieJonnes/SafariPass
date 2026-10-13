@@ -15,8 +15,6 @@ import {
   faCheck,
   faArrowRight,
   faUserPlus,
-  faMagnifyingGlass,
-  faCreditCard,
   faCircleCheck,
   faWallet,
   faTicket,
@@ -222,7 +220,7 @@ function Landing() {
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32">
-          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
             {/* Hero Text */}
             <div className="text-center lg:text-left">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 sm:mb-6 sm:px-4">
@@ -276,53 +274,55 @@ function Landing() {
             </div>
 
             {/* Animated SafariPass Journey Card */}
-            <div className="flex justify-center px-1 sm:px-4">
-              <div className="relative w-full max-w-[390px]">
-                <div className="absolute -inset-6 rounded-full bg-accent/10 blur-3xl sm:-inset-8" />
-                <div className="absolute -right-3 top-12 h-24 w-24 rounded-full bg-secondary/30 blur-2xl" />
+            <div className="flex justify-center px-1 sm:px-2">
+              <div className="relative mx-auto w-full max-w-[340px]">
+                <div className="absolute -inset-5 rounded-full bg-accent/10 blur-3xl" />
+                <div className="absolute -right-2 top-12 h-20 w-20 rounded-full bg-secondary/30 blur-2xl" />
 
-                <div className="relative rounded-[28px] border border-white/50 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4">
+                <div className="relative rounded-[24px] border border-white/50 bg-white/95 p-2.5 shadow-2xl backdrop-blur-xl sm:p-3">
                   {/* Journey Header */}
-                  <div className="flex items-center justify-between rounded-2xl bg-primary px-4 py-4 sm:px-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                  <div className="flex items-center justify-between rounded-xl bg-primary px-3 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
                         <FontAwesomeIcon
                           icon={faBusSimple}
-                          className="text-lg text-accent"
+                          className="text-base text-accent"
                         />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-white">
+                        <p className="text-base font-bold text-white">
                           SafariPass
                         </p>
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-300">
+                        <p className="text-[9px] uppercase tracking-[0.14em] text-gray-300">
                           Your journey, simplified
                         </p>
                       </div>
                     </div>
 
-                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-bold text-accent">
+                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[9px] font-bold text-accent">
                       LIVE DEMO
                     </span>
                   </div>
 
                   {/* Journey Progress */}
-                  <div className="px-3 pb-2 pt-5 sm:px-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <p className="text-xs font-semibold text-primary">
+                  <div className="px-2 pb-1 pt-4 sm:px-3">
+                    <div className="mb-2.5 flex items-center justify-between">
+                      <p className="text-[10px] font-semibold text-primary">
                         YOUR PASSENGER JOURNEY
                       </p>
-                      <p className="text-xs font-semibold text-secondary">
+                      <p className="text-[10px] font-semibold text-secondary">
                         {String(journeyStep + 1).padStart(2, '0')} / 05
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       {journeyStages.map((stage, index) => (
                         <div
                           key={stage.label}
                           className={`h-1.5 flex-1 overflow-hidden rounded-full transition-colors duration-500 ${
-                            index <= journeyStep ? 'bg-secondary' : 'bg-gray-200'
+                            index <= journeyStep
+                              ? 'bg-secondary'
+                              : 'bg-gray-200'
                           }`}
                         />
                       ))}
@@ -341,7 +341,7 @@ function Landing() {
                           }`}
                         >
                           <span
-                            className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] transition-all duration-300 ${
+                            className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] transition-all duration-300 ${
                               index === journeyStep
                                 ? 'scale-110 bg-secondary text-white shadow-md shadow-secondary/20'
                                 : index < journeyStep
@@ -366,25 +366,25 @@ function Landing() {
                   {/* Animated Stage Content */}
                   <div
                     key={journeyStep}
-                    className="animate-card-enter px-2 pb-2 pt-3 sm:px-3"
+                    className="animate-card-enter px-1.5 pb-1.5 pt-2 sm:px-2"
                   >
-                    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-                      <div className="mb-4 flex items-start gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
+                    <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-3.5">
+                      <div className="mb-3 flex items-start gap-2.5">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
                           <FontAwesomeIcon
                             icon={currentStage.icon}
-                            className="text-lg"
+                            className="text-base"
                           />
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.16em] text-secondary">
+                          <p className="mb-1 text-[8px] font-bold uppercase tracking-[0.14em] text-secondary">
                             {currentStage.label}
                           </p>
-                          <h3 className="text-base font-bold leading-snug text-primary sm:text-lg">
+                          <h3 className="text-sm font-bold leading-snug text-primary sm:text-base">
                             {currentStage.title}
                           </h3>
-                          <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                          <p className="mt-1 text-[11px] leading-relaxed text-gray-500">
                             {currentStage.description}
                           </p>
                         </div>
@@ -392,21 +392,24 @@ function Landing() {
 
                       {/* Stage 1: Account Creation */}
                       {journeyStep === 0 && (
-                        <div className="space-y-3 rounded-xl bg-gray-50 p-3">
-                          <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/5 text-primary">
-                              <FontAwesomeIcon icon={faUserPlus} />
+                        <div className="space-y-2.5 rounded-lg bg-gray-50 p-2.5">
+                          <div className="flex items-center gap-2.5 rounded-lg border border-gray-100 bg-white p-2.5">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/5 text-primary">
+                              <FontAwesomeIcon
+                                icon={faUserPlus}
+                                className="text-sm"
+                              />
                             </div>
                             <div className="flex-1">
-                              <div className="mb-1.5 h-2 w-24 rounded-full bg-gray-200" />
-                              <div className="h-1.5 w-16 rounded-full bg-gray-100" />
+                              <div className="mb-1.5 h-2 w-20 rounded-full bg-gray-200" />
+                              <div className="h-1.5 w-14 rounded-full bg-gray-100" />
                             </div>
                             <FontAwesomeIcon
                               icon={faCircleCheck}
-                              className="text-secondary"
+                              className="text-sm text-secondary"
                             />
                           </div>
-                          <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center justify-between text-[10px]">
                             <span className="text-gray-500">
                               Passenger account
                             </span>
@@ -419,35 +422,38 @@ function Landing() {
 
                       {/* Stage 2: Route Selection */}
                       {journeyStep === 1 && (
-                        <div className="space-y-2 rounded-xl bg-gray-50 p-3">
-                          <div className="flex items-center gap-3 rounded-xl border border-secondary/30 bg-secondary/5 p-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-accent">
-                              <FontAwesomeIcon icon={faBusSimple} />
+                        <div className="space-y-2 rounded-lg bg-gray-50 p-2.5">
+                          <div className="flex items-center gap-2.5 rounded-lg border border-secondary/30 bg-secondary/5 p-2.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-accent">
+                              <FontAwesomeIcon
+                                icon={faBusSimple}
+                                className="text-sm"
+                              />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-bold text-primary">
+                              <p className="text-[11px] font-bold text-primary">
                                 Nairobi commute
                               </p>
-                              <p className="mt-1 text-[10px] text-gray-500">
+                              <p className="mt-1 text-[9px] text-gray-500">
                                 Choose your preferred route
                               </p>
                             </div>
                             <FontAwesomeIcon
                               icon={faCircleCheck}
-                              className="text-secondary"
+                              className="text-sm text-secondary"
                             />
                           </div>
 
                           <div className="grid grid-cols-2 gap-2">
-                            <div className="rounded-lg border border-gray-100 bg-white p-3">
-                              <p className="text-[10px] text-gray-400">PLAN</p>
-                              <p className="mt-1 text-xs font-bold text-primary">
+                            <div className="rounded-lg border border-gray-100 bg-white p-2.5">
+                              <p className="text-[9px] text-gray-400">PLAN</p>
+                              <p className="mt-1 text-[11px] font-bold text-primary">
                                 Weekly
                               </p>
                             </div>
-                            <div className="rounded-lg border border-secondary/20 bg-white p-3">
-                              <p className="text-[10px] text-gray-400">PLAN</p>
-                              <p className="mt-1 text-xs font-bold text-primary">
+                            <div className="rounded-lg border border-secondary/20 bg-white p-2.5">
+                              <p className="text-[9px] text-gray-400">PLAN</p>
+                              <p className="mt-1 text-[11px] font-bold text-primary">
                                 Monthly
                               </p>
                             </div>
@@ -457,40 +463,43 @@ function Landing() {
 
                       {/* Stage 3: M-Pesa Payment */}
                       {journeyStep === 2 && (
-                        <div className="rounded-xl bg-gray-50 p-3">
-                          <div className="rounded-xl border border-gray-100 bg-white p-4">
-                            <div className="mb-4 flex items-center justify-between">
+                        <div className="rounded-lg bg-gray-50 p-2.5">
+                          <div className="rounded-lg border border-gray-100 bg-white p-3">
+                            <div className="mb-3 flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                                  <FontAwesomeIcon icon={faMobileScreenButton} />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                                  <FontAwesomeIcon
+                                    icon={faMobileScreenButton}
+                                    className="text-sm"
+                                  />
                                 </div>
                                 <div>
-                                  <p className="text-xs font-bold text-primary">
+                                  <p className="text-[11px] font-bold text-primary">
                                     M-Pesa
                                   </p>
-                                  <p className="text-[10px] text-gray-500">
+                                  <p className="text-[9px] text-gray-500">
                                     Secure payment
                                   </p>
                                 </div>
                               </div>
                               <FontAwesomeIcon
                                 icon={faShieldHalved}
-                                className="text-secondary"
+                                className="text-sm text-secondary"
                               />
                             </div>
 
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400">
+                            <p className="text-[9px] uppercase tracking-wider text-gray-400">
                               Subscription payment
                             </p>
-                            <p className="my-1 text-2xl font-bold text-primary">
+                            <p className="my-1 text-xl font-bold text-primary">
                               Transport plan
                             </p>
 
-                            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100">
                               <div className="animate-progress h-full w-full rounded-full bg-secondary" />
                             </div>
 
-                            <div className="mt-2 flex items-center justify-between text-[10px]">
+                            <div className="mt-2 flex items-center justify-between text-[9px]">
                               <span className="text-gray-500">
                                 Processing payment
                               </span>
@@ -504,25 +513,25 @@ function Landing() {
 
                       {/* Stage 4: Digital QR Pass */}
                       {journeyStep === 3 && (
-                        <div className="rounded-xl bg-gray-50 p-3">
-                          <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
-                            <div className="flex items-center justify-between bg-primary px-3 py-3">
+                        <div className="rounded-lg bg-gray-50 p-2.5">
+                          <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
+                            <div className="flex items-center justify-between bg-primary px-2.5 py-2.5">
                               <div>
-                                <p className="text-[9px] uppercase tracking-wider text-gray-300">
+                                <p className="text-[8px] uppercase tracking-wider text-gray-300">
                                   Digital transport pass
                                 </p>
-                                <p className="mt-1 text-sm font-bold text-white">
+                                <p className="mt-1 text-xs font-bold text-white">
                                   SafariPass
                                 </p>
                               </div>
                               <FontAwesomeIcon
                                 icon={faBusSimple}
-                                className="text-lg text-accent"
+                                className="text-base text-accent"
                               />
                             </div>
 
-                            <div className="flex items-center gap-4 p-3">
-                              <div className="relative flex h-[100px] w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-white p-2">
+                            <div className="flex items-center gap-3 p-2.5">
+                              <div className="flex h-[82px] w-[82px] shrink-0 items-center justify-center rounded-lg border border-gray-100 bg-white p-1.5">
                                 <div className="grid h-full w-full grid-cols-8 gap-[2px]">
                                   {qrPattern.map((cell, index) => (
                                     <div
@@ -538,14 +547,14 @@ function Landing() {
                               </div>
 
                               <div className="min-w-0">
-                                <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2 py-1 text-[9px] font-bold text-secondary">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-1.5 py-1 text-[8px] font-bold text-secondary">
                                   <FontAwesomeIcon icon={faCheck} />
                                   ACTIVE PASS
                                 </span>
-                                <p className="mt-3 text-xs font-bold text-primary">
+                                <p className="mt-2.5 text-[11px] font-bold text-primary">
                                   Monthly plan
                                 </p>
-                                <p className="mt-1 text-[10px] leading-relaxed text-gray-500">
+                                <p className="mt-1 text-[9px] leading-relaxed text-gray-500">
                                   Your digital pass is ready for your next ride.
                                 </p>
                               </div>
@@ -556,30 +565,33 @@ function Landing() {
 
                       {/* Stage 5: QR Scan and Boarding */}
                       {journeyStep === 4 && (
-                        <div className="rounded-xl bg-gray-50 p-3">
-                          <div className="relative overflow-hidden rounded-xl border border-gray-100 bg-white p-4">
+                        <div className="rounded-lg bg-gray-50 p-2.5">
+                          <div className="relative overflow-hidden rounded-lg border border-gray-100 bg-white p-3">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-[10px] uppercase tracking-wider text-gray-400">
+                                <p className="text-[9px] uppercase tracking-wider text-gray-400">
                                   Conductor scanner
                                 </p>
-                                <p className="mt-1 text-sm font-bold text-primary">
+                                <p className="mt-1 text-xs font-bold text-primary">
                                   Scan passenger pass
                                 </p>
                               </div>
-                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                                <FontAwesomeIcon icon={faQrcode} />
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                                <FontAwesomeIcon
+                                  icon={faQrcode}
+                                  className="text-sm"
+                                />
                               </div>
                             </div>
 
-                            <div className="relative mx-auto my-4 flex h-28 w-28 items-center justify-center">
+                            <div className="relative mx-auto my-3 flex h-24 w-24 items-center justify-center">
                               <div className="absolute inset-0 rounded-xl border-2 border-secondary/30" />
-                              <div className="absolute left-0 top-0 h-5 w-5 rounded-tl-lg border-l-[3px] border-t-[3px] border-secondary" />
-                              <div className="absolute right-0 top-0 h-5 w-5 rounded-tr-lg border-r-[3px] border-t-[3px] border-secondary" />
-                              <div className="absolute bottom-0 left-0 h-5 w-5 rounded-bl-lg border-b-[3px] border-l-[3px] border-secondary" />
-                              <div className="absolute bottom-0 right-0 h-5 w-5 rounded-br-lg border-b-[3px] border-r-[3px] border-secondary" />
+                              <div className="absolute left-0 top-0 h-4 w-4 rounded-tl-lg border-l-[3px] border-t-[3px] border-secondary" />
+                              <div className="absolute right-0 top-0 h-4 w-4 rounded-tr-lg border-r-[3px] border-t-[3px] border-secondary" />
+                              <div className="absolute bottom-0 left-0 h-4 w-4 rounded-bl-lg border-b-[3px] border-l-[3px] border-secondary" />
+                              <div className="absolute bottom-0 right-0 h-4 w-4 rounded-br-lg border-b-[3px] border-r-[3px] border-secondary" />
 
-                              <div className="grid h-[76px] w-[76px] grid-cols-8 gap-[2px]">
+                              <div className="grid h-[66px] w-[66px] grid-cols-8 gap-[2px]">
                                 {qrPattern.map((cell, index) => (
                                   <div
                                     key={index}
@@ -595,7 +607,7 @@ function Landing() {
                               <div className="animate-scan absolute left-2 right-2 top-1 h-0.5 bg-secondary shadow-[0_0_8px_rgba(15,118,110,0.7)]" />
                             </div>
 
-                            <div className="flex items-center justify-center gap-2 rounded-lg bg-secondary/10 px-3 py-2.5 text-xs font-bold text-secondary">
+                            <div className="flex items-center justify-center gap-1.5 rounded-lg bg-secondary/10 px-2 py-2 text-[10px] font-bold text-secondary">
                               <FontAwesomeIcon icon={faCircleCheck} />
                               Access granted — enjoy your ride
                             </div>
@@ -604,17 +616,17 @@ function Landing() {
                       )}
 
                       {/* Stage Status */}
-                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                      <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
                         <div className="flex min-w-0 items-center gap-2">
-                          <span className="relative flex h-2.5 w-2.5 shrink-0">
+                          <span className="relative flex h-2 w-2 shrink-0">
                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary/40" />
-                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-secondary" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-secondary" />
                           </span>
-                          <span className="truncate text-xs font-semibold text-primary">
+                          <span className="truncate text-[10px] font-semibold text-primary">
                             {currentStage.status}
                           </span>
                         </div>
-                        <span className="shrink-0 text-[10px] text-gray-400">
+                        <span className="shrink-0 text-[9px] text-gray-400">
                           SafariPass demo
                         </span>
                       </div>
@@ -622,8 +634,8 @@ function Landing() {
                   </div>
 
                   {/* Journey Navigation */}
-                  <div className="flex items-center justify-between px-3 pb-3 pt-1 sm:px-4">
-                    <p className="text-[10px] text-gray-400">
+                  <div className="flex items-center justify-between px-2 pb-2 pt-1 sm:px-3">
+                    <p className="text-[9px] text-gray-400">
                       A simpler way to commute
                     </p>
                     <div className="flex items-center gap-1.5">
@@ -636,7 +648,7 @@ function Landing() {
                           onClick={() => setJourneyStep(index)}
                           className={`h-2 rounded-full transition-all duration-300 ${
                             journeyStep === index
-                              ? 'w-6 bg-secondary'
+                              ? 'w-5 bg-secondary'
                               : 'w-2 bg-gray-300 hover:bg-secondary/50'
                           }`}
                         />
@@ -644,27 +656,7 @@ function Landing() {
                     </div>
                   </div>
                 </div>
-
-                {/* Floating Status Cards */}
-                <div className="absolute -left-3 top-28 hidden items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2.5 shadow-xl sm:flex sm:-left-8">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                    <FontAwesomeIcon icon={faShieldHalved} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] text-gray-400">PAYMENTS</p>
-                    <p className="text-xs font-bold text-primary">M-Pesa ready</p>
-                  </div>
-                </div>
-
-                <div className="absolute -right-2 bottom-24 hidden items-center gap-2 rounded-xl border border-gray-100 bg-white px-3 py-2.5 shadow-xl sm:flex sm:-right-7">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/20 text-primary">
-                    <FontAwesomeIcon icon={faQrcode} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] text-gray-400">YOUR PASS</p>
-                    <p className="text-xs font-bold text-primary">Ready to scan</p>
-                  </div>
-                </div>
+                {/* Floating status cards removed */}
               </div>
             </div>
           </div>
