@@ -1,9 +1,12 @@
-import requests
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from google import genai
+from google.genai import types
+
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
 class ChatView(APIView):
@@ -14,7 +17,10 @@ class ChatView(APIView):
         page_context = request.data.get('page_context', 'a page in the SafariPass app')
 
         if not message:
-            return Response({'error': 'Message is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Message is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         system_prompt = (
             "You are the SafariPass help assistant, embedded inside the SafariPass web app, "
@@ -30,33 +36,17 @@ class ChatView(APIView):
         )
 
         try:
-            url = (
-                "https://generativelanguage.googleapis.com/v1beta/models/"
-                f"gemini-3.8-flash:generateContent?key={settings.GEMINI_API_KEY}"
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                ),
             )
-            response = requests.post(
-                url,
-                json={
-                    "contents": [
-                        {"role": "user", "parts": [{"text": message}]}
-                    ],
-                    "systemInstruction": {
-                        "parts": [{"text": system_prompt}]
-                    },
-                },
-                timeout=20,
-            )
-            response.raise_for_status()
-            data = response.json()
-            reply = data["candidates"][0]["content"]["parts"][0]["text"]
-            return Response({'reply': reply})
+            return Response({'reply': response.text})
         except Exception as e:
-            error_detail = getattr(e, 'response', None)
-            if error_detail is not None:
-                print(f"Chatbot error: {e} | Body: {error_detail.text}")
-            else:
-                print(f"Chatbot error: {e}")
+            print(f"Chatbot error: {e}")
             return Response(
                 {'reply': "Sorry, I'm having trouble responding right now. Please try again shortly."},
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
