@@ -47,6 +47,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         from companies.serializers import RouteSerializer
+        from payments.models import ValidationRecord
+
         data = super().to_representation(instance)
         data['route'] = RouteSerializer(instance.route).data
         data['passenger_username'] = instance.passenger.username
@@ -54,6 +56,16 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             data['plan_label'] = f"{instance.plan_type.get_plan_category_display()} — {instance.plan_type.get_duration_display()}"
         else:
             data['plan_label'] = ''
+
+        data['plan_days'] = 7 if instance.plan_type and instance.plan_type.duration == 'weekly' else 30
+
+        ridden_dates = {
+            timezone.localtime(t).date()
+            for t in ValidationRecord.objects.filter(
+                subscription=instance, result='active'
+            ).values_list('scanned_at', flat=True)
+        }
+        data['days_ridden'] = len(ridden_dates)
         return data
 
 
