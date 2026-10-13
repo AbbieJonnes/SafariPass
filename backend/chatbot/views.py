@@ -1,3 +1,4 @@
+import time
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +8,12 @@ from google import genai
 from google.genai import types
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+MODELS_TO_TRY = [
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+    "gemini-2.5-flash-lite",
+]
 
 
 class ChatView(APIView):
@@ -35,18 +42,40 @@ class ChatView(APIView):
             "what you can help with."
         )
 
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=message,
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                ),
-            )
-            return Response({'reply': response.text})
-        except Exception as e:
-            print(f"Chatbot error: {e}")
-            return Response(
-                {'reply': "Sorry, I'm having trouble responding right now. Please try again shortly."},
-                status=status.HTTP_200_OK,
-            )
+        last_error = None
+
+        for model_name in MODELS_TO_TRY:
+            for attempt in range(3):
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=message,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_prompt,
+                        ),
+                    )
+                    print(f"Chatbot: success with {model_name}")
+                    return Response({'reply': response.text})
+
+                except Exception as e:
+                    err_str = str(e)
+                    last_error = f"{model_name}: {err_str}"
+                    print(f"Chatbot: {model_name} failed (attempt {attempt+1}): {err_str}")
+
+                    # 503 = overloaded → wait and retry same model
+                    if "503" in err_str or "UNAVAILABLE" in err_str:
+                        time.sleep(2 ** attempt)  # 1s, 2s, 4s
+                        continue
+
+                    # 404 = model not found → break out of retry loop, try next model
+                    if "404" in err_str or "NOT_FOUND" in err_str:
+                        break
+
+                    # Any other error → don't retry, try next model
+                    break
+
+        print(f"Chatbot: all attempts failed. Last: {last_error}")
+        return Response(
+            {'reply': "Sorry, I'm having trouble responding right now. Please try again shortly."},
+            status=status.HTTP_200_OK,
+        )
