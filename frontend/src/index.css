@@ -1,3 +1,20 @@
+/* @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --color-primary: #0F2A43;
+  --color-secondary: #0F766E;
+  --color-accent: #84CC16;
+  --color-background: #F5F7FA;
+  --color-card: #FFFFFF;
+  --color-textdark: #172033;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+} */
+
+
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
@@ -8,6 +25,42 @@
   --color-background: #F5F7FA;
   --color-card: #FFFFFF;
   --color-textdark: #172033;
+
+  /* SafariPass journey animations */
+  --animate-scan: scan 2s ease-in-out infinite;
+  --animate-card-enter: card-enter 0.5s ease-out both;
+  --animate-progress: progress 3.5s linear infinite;
+
+  @keyframes scan {
+    0%, 100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(120px);
+      opacity: 1;
+    }
+  }
+
+  @keyframes card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes progress {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
 }
 
 body {
