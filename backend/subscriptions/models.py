@@ -21,6 +21,8 @@ class Subscription(models.Model):
     qr_token = models.CharField(max_length=64, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     shift_count = models.PositiveSmallIntegerField(default=0)
+    rollover_days = models.PositiveSmallIntegerField(default=0)
+    last_rollover_on = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.passenger.username} - {self.route} ({self.status})"
