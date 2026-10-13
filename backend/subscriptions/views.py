@@ -2,11 +2,25 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .tasks import check_unused_days_rollover, revert_expired_route_shifts, send_expiry_warnings, send_expired_notices
 from rest_framework import generics
+from .tasks import (
+    check_unused_days_rollover,
+    revert_expired_route_shifts,
+    send_expiry_warnings,
+    send_expired_notices,
+)
 from .models import Subscription, RouteShift
 from .serializers import SubscriptionSerializer, RouteShiftSerializer
 from accounts.permissions import IsPassenger
+
+
+def _run_step(name, fn):
+    try:
+        return fn()
+    except Exception as e:
+        print(f"Daily check '{name}' failed: {e}")
+        return f"error: {e}"
+
 
 class RunDailyChecksView(APIView):
     permission_classes = [AllowAny]
@@ -16,11 +30,15 @@ class RunDailyChecksView(APIView):
         if secret != settings.CRON_SECRET:
             return Response({'error': 'Unauthorized'}, status=403)
 
-        send_expired_notices()
-        check_unused_days_rollover()
-        revert_expired_route_shifts()
-        send_expiry_warnings()
-        return Response({'status': 'Daily checks completed successfully.'})
+        results = {
+            'expired_notices_sent': _run_step('expired', send_expired_notices),
+            'rollover_extended': _run_step('rollover', check_unused_days_rollover),
+            'route_shifts_reverted': _run_step('shifts', revert_expired_route_shifts),
+            'expiry_warnings_sent': _run_step('warnings', send_expiry_warnings),
+        }
+        print(f"Daily checks finished: {results}")
+        return Response({'status': 'Daily checks finished.', 'results': results})
+
 
 class SubscriptionListCreateView(generics.ListCreateAPIView):
     serializer_class = SubscriptionSerializer
