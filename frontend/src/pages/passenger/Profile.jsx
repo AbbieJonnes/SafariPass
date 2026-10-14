@@ -1,12 +1,38 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faLock, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faLock, faSave, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../../components/Navbar';
 import axiosInstance from '../../api/axiosInstance';
+
+const RING_PATH = 'M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831';
+
+function Ring({ percent, colorClass, children }) {
+  return (
+    <div className="relative w-24 h-24 mx-auto mb-3">
+      <svg viewBox="0 0 36 36" className="w-24 h-24 -rotate-90">
+        <path className="text-gray-200" stroke="currentColor" strokeWidth="3" fill="none" d={RING_PATH} />
+        {percent > 0 && (
+          <path
+            className={colorClass}
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={`${percent}, 100`}
+            d={RING_PATH}
+          />
+        )}
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center text-center">{children}</div>
+    </div>
+  );
+}
 
 function Profile() {
   const [profile, setProfile] = useState(null);
   const [subscription, setSubscription] = useState(null);
+  const [subsLoaded, setSubsLoaded] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [pictureFile, setPictureFile] = useState(null);
@@ -27,9 +53,14 @@ function Profile() {
       setPreview(res.data.profile_picture);
     });
 
-    axiosInstance.get('/subscriptions/').then((res) => {
-      if (res.data.length > 0) setSubscription(res.data[0]);
-    });
+    axiosInstance.get('/subscriptions/')
+      .then((res) => {
+        const list = res.data;
+        const now = new Date();
+        const active = list.find((s) => s.status === 'active' && new Date(s.expiry_date) > now);
+        setSubscription(active || list[0] || null);
+      })
+      .finally(() => setSubsLoaded(true));
   }, []);
 
   const handlePictureChange = (e) => {
@@ -81,14 +112,26 @@ function Profile() {
     ? Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100)
     : 0;
 
-  let usagePercent = 0;
+  let usage = null;
   if (subscription) {
-    const start = new Date(subscription.start_date);
-    const end = new Date(subscription.expiry_date);
     const now = new Date();
-    const total = end - start;
-    const elapsed = now - start;
-    usagePercent = total > 0 ? Math.min(100, Math.max(0, Math.round((elapsed / total) * 100))) : 0;
+    const expiry = new Date(subscription.expiry_date);
+    const planDays =
+      subscription.plan_days ??
+      Math.max(1, Math.round((expiry - new Date(subscription.start_date)) / 86400000));
+    const rolloverDays = subscription.rollover_days ?? 0;
+    const daysRidden = subscription.days_ridden ?? 0;
+    const totalDays = planDays + rolloverDays;
+
+    usage = {
+      expired: subscription.status === 'expired' || expiry <= now,
+      daysRidden,
+      totalDays,
+      rolloverDays,
+      daysLeft: Math.max(0, Math.ceil((expiry - now) / 86400000)),
+      percent: totalDays > 0 ? Math.min(100, Math.round((daysRidden / totalDays) * 100)) : 0,
+      expiryLabel: expiry.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+    };
   }
 
   if (!profile) {
@@ -100,6 +143,15 @@ function Profile() {
     );
   }
 
+  const browseButton = (label) => (
+    <Link
+      to="/passenger/browse"
+      className="mt-4 inline-flex items-center justify-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg hover:opacity-90 transition"
+    >
+      {label} <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+    </Link>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -109,31 +161,49 @@ function Profile() {
 
         <div className="grid sm:grid-cols-2 gap-6 mb-8">
           <div className="bg-card rounded-2xl p-6 shadow-sm text-center">
-            <div className="relative w-20 h-20 mx-auto mb-2">
-              <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
-                <path className="text-gray-200" stroke="currentColor" strokeWidth="3" fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="text-secondary" stroke="currentColor" strokeWidth="3" fill="none"
-                  strokeDasharray={`${completionPercent}, 100`}
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center font-bold text-primary">{completionPercent}%</span>
-            </div>
+            <Ring percent={completionPercent} colorClass="text-secondary">
+              <span className="text-lg font-bold text-primary">{completionPercent}%</span>
+            </Ring>
             <p className="text-sm text-gray-500">Profile Completion</p>
           </div>
 
           <div className="bg-card rounded-2xl p-6 shadow-sm text-center">
-            <div className="relative w-20 h-20 mx-auto mb-2">
-              <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
-                <path className="text-gray-200" stroke="currentColor" strokeWidth="3" fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="text-accent" stroke="currentColor" strokeWidth="3" fill="none"
-                  strokeDasharray={`${usagePercent}, 100`}
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center font-bold text-primary">{usagePercent}%</span>
-            </div>
-            <p className="text-sm text-gray-500">Subscription Used</p>
+            {!subsLoaded ? (
+              <p className="text-sm text-gray-400 py-10">Loading...</p>
+            ) : !subscription ? (
+              <>
+                <Ring percent={0} colorClass="text-accent">
+                  <span className="text-lg text-gray-300">—</span>
+                </Ring>
+                <p className="text-sm font-medium text-textdark">No subscription yet</p>
+                <p className="text-xs text-gray-400 mt-1">Pick a route to get your first pass.</p>
+                {browseButton('Browse Routes')}
+              </>
+            ) : usage.expired ? (
+              <>
+                <Ring percent={0} colorClass="text-accent">
+                  <span className="text-sm font-bold text-red-500">Expired</span>
+                </Ring>
+                <p className="text-sm font-medium text-textdark">Subscription expired</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Rode {usage.daysRidden} of {usage.totalDays} days · ended {usage.expiryLabel}
+                </p>
+                {browseButton('Renew')}
+              </>
+            ) : (
+              <>
+                <Ring percent={usage.percent} colorClass="text-accent">
+                  <span className="text-lg font-bold text-primary">
+                    {usage.daysRidden}/{usage.totalDays}
+                  </span>
+                </Ring>
+                <p className="text-sm text-gray-500">Days Ridden</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {usage.daysLeft} day{usage.daysLeft === 1 ? '' : 's'} left
+                  {usage.rolloverDays > 0 ? ` · +${usage.rolloverDays} added back` : ''}
+                </p>
+              </>
+            )}
           </div>
         </div>
 
@@ -204,4 +274,3 @@ function Profile() {
 }
 
 export default Profile;
-
